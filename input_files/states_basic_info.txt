@@ -1,0 +1,51 @@
+Name Abbreviation Region Reps LargestCity
+Alabama, AL, Southeast, 9, Birmingham
+Alaska, AK, Pacific West, 1, Anchorage
+Arizona, AZ, Southwest, 2, Phoenix
+Arkansas, AR, Southeast, 6, Little Rock
+California, CA, Pacific West, 30, Los Angeles
+Colorado, CO, Rocky Mountains, 4, Denver
+Connecticut, CT, New England, 6, New Haven
+Delaware, DE, Mid-Atlantic, 1, Wilmington
+Florida, FL, Southeast, 8, Miami
+Georgia, GA, Southeast, 10, Atlanta
+Hawaii, HI, Pacific West, 1, Honolulu
+Idaho, ID, Rocky Mountains, 2, Boise
+Illinois, IL, Midwest, 25, Chicago
+Indiana, IN, Midwest, 11, Indianapolis
+Iowa, IA, Midwest, 8, Des Moines
+Kansas, KS, Great Plains, 6, Wichita
+Kentucky, KY, Southeast, 8, Louisville
+Louisiana, LA, Southeast, 8, New Orleans
+Maine, ME, New England, 3, Portland
+Maryland, MD, Mid-Atlantic, 7, Baltimore
+Massachusetts, MA, New England, 14, Boston
+Michigan, MI, Midwest, 18, Detroit
+Minnesota, MN, Midwest, 9, Minneapolis
+Mississippi, MS, Southeast, 6, Jackson
+Missouri, MO, Midwest, 11, Kansas City
+Montana, MT, Rocky Mountains, 2, Billings
+Nebraska, NE, Great Plains, 4, Omaha
+Nevada, NV, Southwest, 1, Las Vegas
+New Hampshire, NH, New England, 2, Concord
+New Jersey, NJ, Mid-Atlantic, 14, Newark
+New Mexico, NM, Southwest, 2, Albuquerque
+New York, NY, Mid-Atlantic, 43, New York City
+North Carolina, NC, Southeast, 12, Charlotte
+North Dakota, ND, Great Plains, 2, Fargo
+Ohio, OH, Midwest, 23, Cleveland
+Oklahoma, OK, Great Plains, 6, Oklahoma City
+Oregon, OR, Pacific West, 4, Portland
+Pennsylvania, PA, Mid-Atlantic, 30, Philadelphia
+Rhode Island, RI, New England, 2, Providence
+South Carolina, SC, Southeast, 6, Charleston
+South Dakota, SD, Great Plains, 2, Sioux Falls
+Tennessee, TN, Southeast, 9, Nashville
+Texas, TX, Southeast, 22, Houston
+Utah, UT, Southwest, 2, Salt Lake City
+Vermont, VT, New England, 1, Burlington
+Virginia, VA, Mid-Atlantic, 10, Richmond
+Washington, WA, Pacific West, 7, Seattle
+West Virginia, WV, Mid-Atlantic, 6, Huntington
+Wisconsin, WI, Midwest, 10, Milwaukee
+Wyoming, WY, Rocky Mountains, 1, Cheyenne

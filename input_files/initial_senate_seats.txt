@@ -1,0 +1,51 @@
+statename, party1, electionyear1, party2, electionyear2
+Alabama, P, 4, D, 0
+Alaska, P, 4, D, 0
+Arizona, R, 2, D, 0
+Arkansas, P, 4, D, 0
+California, D, 2, R, 0
+Colorado, P, 4, D, 0
+Connecticut, D, 2, R, 0
+Delaware, R, 2, P, 4
+Florida, D, 2, D, 0
+Georgia, P, 4, D, 0
+Hawaii, R, 2, D, 0
+Idaho, P, 4, D, 0
+Illinois, P, 4, R, 0
+Indiana, D, 2, R, 0
+Iowa, P, 4, R, 0
+Kansas, P, 4, R, 0
+Kentucky, P, 4, R, 0
+Louisiana, P, 4, D, 0
+Maine, D, 2, P, 4
+Maryland, R, 2, R, 0
+Massachusetts, D, 2, P, 4
+Michigan, D, 2, P, 4
+Minnesota, D, 2, P, 4
+Mississippi, D, 2, P, 4
+Missouri, D, 2, D, 0
+Montana, D, 2, P, 4
+Nebraska, R, 2, P, 4
+Nevada, D, 2, D, 0
+New Hampshire, P, 4, R, 0
+New Jersey, D, 2, P, 4
+New Mexico, D, 2, P, 4
+New York, R, 2, R, 0
+North Carolina, P, 4, D, 0
+North Dakota, R, 2, R, 0
+Ohio, D, 2, D, 0
+Oklahoma, P, 4, D, 0
+Oregon, P, 4, D, 0
+Pennsylvania, R, 2, D, 0
+Rhode Island, D, 2, P, 4
+South Carolina, P, 4, D, 0
+South Dakota, P, 4, R, 0
+Tennessee, D, 2, P, 4
+Texas, D, 2, P, 4
+Utah, D, 2, R, 0
+Vermont, R, 2, R, 0
+Virginia, D, 2, P, 4
+Washington, D, 2, D, 0
+West Virginia, D, 2, P, 4
+Wisconsin, D, 2, R, 0
+Wyoming, D, 2, P, 4
