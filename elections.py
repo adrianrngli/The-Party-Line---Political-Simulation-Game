@@ -76,6 +76,12 @@ class StateSenateElection(StateElection):
             if candidate in self.state.senators:
                 self.points[candidate] += 50
                 return
+            
+    def headwinds_contest(self):
+        if self.nation.year % 4 != 0:
+            for i in range(2):
+                if self.general_candidates[i].party != self.nation.president.party:
+                    self.points[self.general_candidates[i]] += 35
 
     def run_election(self):
         """runs the election. Elections are made up of contests giving each candidate points. 
@@ -86,6 +92,7 @@ class StateSenateElection(StateElection):
         self.charisma_contest()
         self.issues_contest()
         self.incumbency_contest()
+        self.headwinds_contest()
         self.random_contest()
         election_results = self.get_results()
         self.implement_results()
@@ -98,6 +105,7 @@ class StateSenateElection(StateElection):
         self.charisma_contest()
         self.issues_contest()
         self.incumbency_contest()
+        self.headwinds_contest()
         poll_results = self.get_results()
         poll_results += " " + self.race_classification()
         for candidate in self.general_candidates:
@@ -314,6 +322,9 @@ class NationalPresidentialElection(Election):
     def __init__(self, nation, candidates, running_mates):
         super().__init__(nation)
         self.elections = dict()
+        if candidates[0].party.letter == "R":
+            candidates.insert(2, candidates[0])
+            candidates.pop(0)
         self.candidates = candidates
         self.electoral_vote = dict()
         self.proportional_vote = dict()
