@@ -8,11 +8,11 @@ import random
 
 class Nation:
     """Represents the entire nation, holding all of the states and national information"""
-    def __init__(self, parties, player_party):
+    def __init__(self, parties, player_party, issues = []):
         self.year = 1960
         self.states = []
         self.parties = parties
-        self.issues = []
+        self.issues = issues
         self.in_recession = False
         self.in_unrest = False
         self.presidential_hopefuls = dict()
@@ -76,10 +76,12 @@ class Nation:
             if party != player_party:
                 self.president = President(party, self.states[0], years_in_office=8)
                 self.vice_president = President(party, self.states[random.randint(0, 49)])
+                for state in self.states:
+                    state.rep_composition[party] = round(state.rep_number * 0.6)
+                    state.rep_composition[player_party] = round(state.rep_number - state.rep_composition[party])
 
         #initialize issues
         self.all_issues = AllIssues()
-        self.issues.extend(self.all_issues.generate_issues(4))
 
         self.update_presidential_hopefuls()
 
@@ -121,6 +123,29 @@ class Nation:
         elif senate_totals[self.parties[1]] > senate_totals[self.parties[0]]:
             return self.parties[1]
         else:
+            return self.president.party
+        
+    def get_house_composition(self):
+        house_composition = dict()
+        house_composition[self.parties[0]] = 0
+        house_composition[self.parties[1]] = 0
+        for state in self.states:
+            house_composition[self.parties[0]] += state.rep_composition[self.parties[0]]
+            house_composition[self.parties[1]] += state.rep_composition[self.parties[1]]
+        return house_composition
+    
+    def get_house_totals(self):
+        house_totals = self.get_house_composition()
+        total_results = self.parties[0].letter + " " + str(house_totals[self.parties[0]]) + " " + self.parties[1].letter + " " + str(house_totals[self.parties[1]])
+        return total_results
+
+    def get_house_majority_party(self):
+        house_totals = self.get_house_composition()
+        if house_totals[self.parties[0]] > house_totals[self.parties[1]]:
+            return self.parties[0]
+        elif house_totals[self.parties[1]] > house_totals[self.parties[0]]:
+            return self.parties[1]
+        else:
             return None
         
     def get_polling_on_issue(self, issue):
@@ -144,7 +169,6 @@ class Nation:
             poll_string = ""
             for stance in issue.stances.keys():
                 poll_string += str(stance) + " " + str(round(poll[stance], 1)) + "% "
-                
             print(poll_string)
         
     def update_presidential_hopefuls(self):

@@ -8,9 +8,25 @@ class Party(StatHolder):
         assert letter == name[0]
         self.name = name
         self.letter = letter
+        self.platform = None
     
     def set_political_stances(self, economic_stance, foreign_stance, social_stance):
         """Sets the political stances of the party"""
         self.set_stat("economic_stance", economic_stance)
         self.set_stat("foreign_stance", foreign_stance)
         self.set_stat("social_stance", social_stance)
+
+    def set_platform(self, platform):
+        self.platform = platform
+        for axis in ["economic_stance", "foreign_stance", "social_stance"]:
+            issue_count = 0
+            average_position = 0.0
+            for issue in platform.keys():
+                if platform[issue].type == axis:
+                    issue_count += 1
+                    average_position += platform[issue].value
+            average_position /= issue_count
+            self.set_stat(axis, average_position)
+
+    def __str__(self):
+        return self.name + " Party"

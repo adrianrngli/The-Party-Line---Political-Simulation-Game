@@ -15,6 +15,7 @@ class State(StatHolder):
         self.largest_city = City(largest_city, self)
         self.senators = [None, None]
         self.governor = None
+        self.rep_composition = dict()
     
     def add_senator(self, senator):
         """Add a senator into a state's vacant senate seat"""

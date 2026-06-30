@@ -25,6 +25,14 @@ class PollStat:
         self.value = random.gauss(self.value, std)
         self.bound()
 
+    def add(self, quantity):
+        self.value += quantity
+        self.bound()
+
+    def subtract(self, quantity):
+        self.value -= quantity
+        self.bound()
+
     
 class StatVector:
     """StatVectors represent a change in a stat. They can be applied to PollStats"""

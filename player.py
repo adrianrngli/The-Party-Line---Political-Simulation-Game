@@ -47,8 +47,36 @@ class HumanPlayer(Player):
         while nominee_index == running_mate_index:
             nominee_index = int(input("Enter the number of the candidate you would like to nominate for president "))
             running_mate_index = int(input("Enter the number of the candidate you would like to nominate for vice president "))
+        nation.presidential_hopefuls[self.party][nominee_index-1].set_stat("fame", 100)
         return [nation.presidential_hopefuls[self.party][nominee_index-1], nation.presidential_hopefuls[self.party][running_mate_index-1]]
+
+    def set_platform(self, issues):
+        """Prompt the player to choose their party's stance on each issue"""
+        platform = dict()
+        for issue in issues:
+            print("Issue: " + str(issue))
+            stances = list(issue.stances.values())
+            for i in range(len(stances)):
+                print(str(i + 1) + ". " + str(stances[i]))
+            choice = 0
+            while choice < 1 or choice > len(stances):
+                choice = int(input("Enter the number of your party's position on this issue "))
+            platform[issue] = stances[choice - 1]
+        self.party.set_platform(platform)
+
 
 class CPUPlayer(Player):
     def __init__(self, party):
         super().__init__(party)
+
+    def set_platform(self, issues):
+        platform = dict()
+        for issue in issues:
+            closest_stance = issue.stances[next(iter(issue.stances))]
+            least_distance = self.party.stats[issue.type].distance_to(closest_stance)
+            for stance in issue.stances.keys():
+                if self.party.stats[issue.type].distance_to(issue.stances[stance]) < least_distance:
+                    closest_stance = issue.stances[stance]
+                    least_distance = self.party.stats[issue.type].distance_to(issue.stances[stance])
+            platform[issue] = closest_stance
+        self.party.set_platform(platform)

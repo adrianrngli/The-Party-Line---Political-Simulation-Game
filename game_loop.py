@@ -5,10 +5,11 @@ from locations import State, City
 from people import Politician, Representative, Senator, Governor, Mayor
 import random
 from nation import Nation
-from elections import Election, NationalSenateElection, NationalPresidentialElection
+from elections import Election, NationalSenateElection, NationalPresidentialElection, NationalHouseElection
 from player import HumanPlayer, CPUPlayer
+from issues import AllIssues
 
-def initialize_game():
+def initialize_players():
     player_party_choice = input("What party will you align yourself with? (D or R) ").upper()
     if player_party_choice == 'D':
         players.append(HumanPlayer(democrats))
@@ -22,8 +23,12 @@ democrats.set_political_stances(35, 65, 65)
 republicans = Party("Republican", 'R')
 republicans.set_political_stances(45, 65, 70)
 players = []
-initialize_game()
-nation = Nation([democrats, republicans], players[0].party)
+all_issues = AllIssues()
+initial_issues = all_issues.generate_issues(4)
+initialize_players()
+for player in players:
+    player.set_platform(initial_issues)
+nation = Nation([democrats, republicans], players[0].party, initial_issues)
 """
 elections = dict()
 for state in nation.states:
@@ -59,32 +64,56 @@ for state in nation.states:
             #print(sen.get_stance(issue))
             pass
 
+
+
 for i in range(60):
     print(nation.year)
+    
+    print("President:")
     print(nation.president)
+    print("Presidential approval rating: " + str(round(nation.president.stats["popularity"].value, 1)) + "% approve")
+    print("Senate composition:")
+    print(nation.get_senate_totals())
+    print("House composition:")
+    print(nation.get_house_totals())
+    for i in range(2):
+        print(str(nation.parties[i]) + " approval rating: " + str(round(nation.parties[i].stats["popularity"].value, 1)) + "% approve")
+    print("Polling on issues: ")
     nation.display_polling_on_issues()
-    if nation.year % 4 == 0:
-        tickets = []
-        for player in players:
-            tickets.append(player.choose_presidential_ticket(nation))
-        presidential_candidates = []
-        running_mates = dict()
-        for ticket in tickets:
-            presidential_candidates.append(ticket[0])
-            running_mates[ticket[0]] = ticket[1]
-        presidential_election = NationalPresidentialElection(nation, presidential_candidates, running_mates)
+    
     senate_elections = NationalSenateElection(nation)
+    
     if not senate_elections.no_elections():
+        if nation.year % 2 == 0:
+            house_elections = NationalHouseElection(nation)
         senate_elections.display_polling()
         print(nation.get_senate_totals())
         for i in range(2):
             players[i].edit_senate_elections(senate_elections)
-        input("Press enter to run elections ")
+        if nation.year % 4 == 0:
+            tickets = []
+            for player in players:
+                tickets.append(player.choose_presidential_ticket(nation))
+            presidential_candidates = []
+            running_mates = dict()
+            for ticket in tickets:
+                presidential_candidates.append(ticket[0])
+                running_mates[ticket[0]] = ticket[1]
+            presidential_election = NationalPresidentialElection(nation, presidential_candidates, running_mates)
+            input("Press enter to run the presidential election. ")
+            presidential_election.run_election()
+            print()
+        input("Press enter to run senate elections. ")
         senate_elections.run_elections()
         print(nation.get_senate_totals())
-        print("\n")
-        if nation.year % 4 == 0:
-            presidential_election.run_election()
+        print()
+        if nation.year % 2 == 0:
+            input("Press enter to run house elections. ")
+            house_elections.run_elections()
+            print(nation.get_house_totals())
+            print()
+
+        
     input("Press enter to advance year ")
     print()
     nation.increment_year()

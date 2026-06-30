@@ -243,7 +243,7 @@ def convert_to_president(person):
     new_president.age = person.age
     new_president.years_of_experience = person.years_of_experience
     new_president.stats = person.stats
-    new_president.stats["popularity"].value += 15
+    new_president.stats["popularity"].add(15)
     return new_president
 
 def convert_to_vice_president(person):
@@ -254,5 +254,5 @@ def convert_to_vice_president(person):
     new_vp.age = person.age
     new_vp.years_of_experience = person.years_of_experience
     new_vp.stats = person.stats
-    new_vp.stats["popularity"].value += 15
+    new_vp.stats["popularity"].add(15)
     return new_vp

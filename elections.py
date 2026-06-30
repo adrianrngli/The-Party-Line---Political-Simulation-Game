@@ -12,6 +12,48 @@ class Election:
         self.nation = nation
         self.points = dict()
 
+class StateHouseElection(Election):
+    def __init__(self, state, nation):
+        super().__init__(nation)
+        self.state = state
+        for i in range(2):
+            self.points[self.nation.parties[i]] = 0
+
+    def issues_contest(self):
+        for i in range(2):
+            for issue in self.nation.issues:
+                self.points[self.nation.parties[i]] += -10.0 * sqrt(self.state.stats[issue.type].distance_to(self.nation.parties[i].platform[issue])) + 100.0
+
+    def popularity_contest(self):
+        for i in range(2):
+            self.points[self.nation.parties[i]] += self.nation.parties[i].stats["popularity"].value
+
+    def headwinds_contest(self):
+        if self.nation.year % 4 != 0:
+            for i in range(2):
+                if self.nation.parties[i] != self.nation.president.party:
+                    self.points[self.nation.parties[i]] += 50
+    
+    def random_contest(self):
+        partitions = [0, 50]
+        for i in range(2):
+            partitions.append(random.randint(0, 50))
+        partitions.sort()
+        for i in range(2):
+            self.points[self.nation.parties[i]] += partitions[i+1] - partitions[i]
+
+    def run_election(self):
+        self.issues_contest()
+        self.popularity_contest()
+        self.headwinds_contest()
+        self.random_contest()
+        self.implement_results()
+
+    def implement_results(self):
+        total_vote = self.points[self.nation.parties[0]] + self.points[self.nation.parties[1]]
+        self.state.rep_composition[self.nation.parties[0]] = round(self.state.rep_number * self.points[self.nation.parties[0]] / total_vote)
+        self.state.rep_composition[self.nation.parties[1]] = round(self.state.rep_number - self.state.rep_composition[self.nation.parties[0]])
+
 class StateElection(Election):
     """Represents an election at the state level"""
     def __init__(self, state, nation, candidates = []):
@@ -26,7 +68,7 @@ class StateElection(Election):
     def issues_contest(self):
         for candidate in self.general_candidates:
             for issue in self.nation.issues:
-                self.points[candidate] += -20.0 * sqrt(100.0 - self.state.stats[issue.type].distance_to(candidate.get_stance(issue))) + 200.0
+                self.points[candidate] += -20.0 * sqrt(self.state.stats[issue.type].distance_to(candidate.get_stance(issue))) + 200.0
 
 
     def fame_contest(self):
@@ -74,14 +116,14 @@ class StateSenateElection(StateElection):
     def incumbency_contest(self):
         for candidate in self.general_candidates:
             if candidate in self.state.senators:
-                self.points[candidate] += 50
+                self.points[candidate] += 100
                 return
             
     def headwinds_contest(self):
         if self.nation.year % 4 != 0:
             for i in range(2):
                 if self.general_candidates[i].party != self.nation.president.party:
-                    self.points[self.general_candidates[i]] += 35
+                    self.points[self.general_candidates[i]] += 50
 
     def run_election(self):
         """runs the election. Elections are made up of contests giving each candidate points. 
@@ -273,11 +315,7 @@ class NationalSenateElection(Election):
         self.initial_seats = nation.get_senate_composition()
         for i in range(2):
             self.points[nation.parties[i]] = 0
-        self.initial_leader = None
-        if self.initial_seats[self.nation.parties[0]] > self.initial_seats[self.nation.parties[1]]:
-            self.initial_leader = self.nation.parties[0]
-        elif self.initial_seats[self.nation.parties[1]] > self.initial_seats[self.nation.parties[0]]:
-            self.initial_leader = self.nation.parties[1]
+        self.initial_leader = self.nation.get_senate_majority_party()
         for state in nation.states:
             for sen in state.senators:
                 if sen.election_year == nation.year % 6:
@@ -297,10 +335,7 @@ class NationalSenateElection(Election):
         new_leader = None
         outcome_string = ""
         self.points = self.nation.get_senate_composition()
-        if self.points[self.nation.parties[0]] > self.points[self.nation.parties[1]]:
-            new_leader = self.nation.parties[0]
-        elif self.points[self.nation.parties[1]] > self.points[self.nation.parties[0]]:
-            new_leader = self.nation.parties[1]
+        new_leader = self.nation.get_senate_majority_party()
         if new_leader != None and new_leader == self.initial_leader:
             outcome_string = self.initial_leader.name + " hold"
         elif new_leader != None and self.initial_leader != None:
@@ -375,3 +410,31 @@ class NationalPresidentialElection(Election):
         if self.running_mates[self.winner] != self.nation.vice_president:
             self.running_mates[self.winner].retired = True
             self.nation.vice_president = convert_to_vice_president(self.running_mates[self.winner])
+
+class NationalHouseElection(Election):
+
+    def __init__(self, nation):
+        super().__init__(nation)
+        self.initial_seats = nation.get_house_composition()
+        self.initial_leader = nation.get_house_majority_party()
+        self.elections = dict()
+        for state in nation.states:
+            self.elections[state.abbreviation] = StateHouseElection(state, nation)
+
+    def run_elections(self):
+        for state in self.nation.states:
+            self.elections[state.abbreviation].run_election()
+        new_leader = None
+        outcome_string = ""
+        self.points = self.nation.get_house_composition()
+        new_leader = self.nation.get_house_majority_party()
+        if new_leader != None and new_leader == self.initial_leader:
+            outcome_string = self.initial_leader.name + " hold"
+        elif new_leader != None and self.initial_leader != None:
+            outcome_string = new_leader.name + " gain"
+        change_string = "no net change"
+        for i in range(2):
+            if self.points[self.nation.parties[i]] > self.initial_seats[self.nation.parties[i]]:
+                change_string = self.nation.parties[i].letter + "+" + str(self.points[self.nation.parties[i]] 
+                                                                          - self.initial_seats[self.nation.parties[i]])
+        print(outcome_string + " (" + change_string + ")")
