@@ -106,6 +106,8 @@ class State(StatHolder):
         total_vote = 0.0
         for stance in issue.stances.keys():
             polling[stance] = -10 * sqrt(self.stats[issue.type].distance_to(issue.stances[stance])) + 100
+            for industry in issue.stances[stance].industry_effects.keys():
+                polling[stance] += issue.stances[stance].industry_effects[industry] / 2
             total_vote += polling[stance]
         for opinion in polling.keys():
             polling[opinion] = polling[opinion]/total_vote * 100.0

@@ -1,0 +1,93 @@
+[
+    {
+        "name": "Taxing the wealthy",
+        "type": "economic_stance",
+        "min_value": 10,
+        "max_value": 100,
+        "stances": [
+            {
+                "name": "Tax Cuts",
+                "value": 70,
+                "moderate": false,
+                "industry_effects": {}
+            },
+            {
+                "name": "Moderate Taxes",
+                "value": 50,
+                "moderate": true,
+                "industry_effects": {}
+            },
+            {
+                "name": "High Taxes",
+                "value": 30,
+                "moderate": false,
+                "industry_effects": {}
+            }
+        ]
+    },
+    {
+        "name": "Nuclear weapons",
+        "type": "foreign_stance",
+        "min_value": 45,
+        "max_value": 100,
+        "stances": [
+            {
+                "name": "Arms Control",
+                "value": 50,
+                "moderate": false,
+                "industry_effects": {
+                    "public_sector": -4
+                }
+            },
+            {
+                "name": "Nuclear Proliferation",
+                "value": 70,
+                "moderate": false,
+                "industry_effects": {
+                    "manufacturing": 5,
+                    "public_sector": 5
+                }
+            }
+        ]
+    },
+    {
+        "name": "Government surveillance",
+        "type": "social_stance",
+        "min_value": 50,
+        "max_value": 100,
+        "stances": [
+            {
+                "name": "Anti-surveillance",
+                "value": 45,
+                "moderate": false,
+                "industry_effects": {}
+            },
+            {
+                "name": "Pro-surveillance",
+                "value": 70,
+                "moderate": false,
+                "industry_effects": {}
+            }
+        ]
+    },
+    {
+        "name": "Segregation",
+        "type": "social_stance",
+        "min_value": 60,
+        "max_value": 90,
+        "stances": [
+            {
+                "name": "Desegregation",
+                "value": 60,
+                "moderate": false,
+                "industry_effects": {}
+            },
+            {
+                "name": "Pro-segregation",
+                "value": 80,
+                "moderate": false,
+                "industry_effects": {}
+            }
+        ]
+    }
+]

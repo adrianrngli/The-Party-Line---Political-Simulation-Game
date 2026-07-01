@@ -22,7 +22,11 @@ class StateHouseElection(Election):
     def issues_contest(self):
         for i in range(2):
             for issue in self.nation.issues:
-                self.points[self.nation.parties[i]] += -10.0 * sqrt(self.state.stats[issue.type].distance_to(self.nation.parties[i].platform[issue])) + 100.0
+                party_stance = self.nation.parties[i].get_stance(issue)
+                self.points[self.nation.parties[i]] += -10.0 * sqrt(self.state.stats[issue.type].distance_to(party_stance)) + 100.0
+                for industry in party_stance.industry_effects.keys():
+                    self.points[self.nation.parties[i]] += party_stance.industry_effects[industry] / 2
+
 
     def popularity_contest(self):
         for i in range(2):
@@ -68,7 +72,10 @@ class StateElection(Election):
     def issues_contest(self):
         for candidate in self.general_candidates:
             for issue in self.nation.issues:
-                self.points[candidate] += -20.0 * sqrt(self.state.stats[issue.type].distance_to(candidate.get_stance(issue))) + 200.0
+                candidate_stance = candidate.get_stance(issue)
+                self.points[candidate] += -20.0 * sqrt(self.state.stats[issue.type].distance_to(candidate_stance)) + 200.0
+                for industry in candidate_stance.industry_effects.keys():
+                    self.points[candidate] += candidate_stance.industry_effects[industry]
 
 
     def fame_contest(self):

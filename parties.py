@@ -28,5 +28,8 @@ class Party(StatHolder):
             average_position /= issue_count
             self.set_stat(axis, average_position)
 
+    def get_stance(self, issue):
+        return self.platform[issue]
+
     def __str__(self):
         return self.name + " Party"
