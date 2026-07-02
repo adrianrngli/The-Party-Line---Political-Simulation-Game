@@ -87,14 +87,20 @@ class HumanPlayer(Player):
         issue = issues[issue_choice - 1]
 
         stances = list(issue.stances.values())
-        for i in range(len(stances)):
-            print(str(i + 1) + ". " + str(stances[i]))
-        stance_choice = 0
-        while stance_choice < 1 or stance_choice > len(stances):
-            stance_choice = int(input("Enter the number of the stance your law will take "))
-        stance = stances[stance_choice - 1]
-
-        bill = Bill(issue, stance, self.party, nation.year, nation)
+        bills = [Bill(issue, stance, self.party, nation.year, nation) for stance in stances]
+        for i in range(len(bills)):
+            bill_string = str(i+1) + " " + str(bills[i].stance)
+            bill_string += ": " + str(bills[i].get_house_party_votes(self.party)) + " House " + self.party.name + " votes, "
+            bill_string += str(bills[i].get_senate_party_votes(self.party)) + " Senate " + self.party.name + " votes, "
+            if bills[i].get_presidential_approval() == "Pass":
+                bill_string += " President approves"
+            else:
+                bill_string += " President disapproves"
+            print(bill_string)
+        bill_choice = 0
+        while bill_choice < 1 or bill_choice > len(bills):
+            bill_choice = int(input("Enter the number of the stance your law will take "))
+        bill = bills[bill_choice - 1]
         return bill
 
     def choose_bill_stance(self, bill):
