@@ -128,6 +128,8 @@ class Bill:
                 elif self.get_senate_vote() > 66:
                     print(str(self.nation.president) + " reluctantly signed " + str(self) + " into law!")
                     return "Passed"
+                else:
+                    return "Vetoed"
             else:
                 if self.get_senate_vote() > 50:
                     return "Stopped by filibuster"

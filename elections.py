@@ -252,6 +252,14 @@ class StatePresidentialElection(StateElection):
                 if self.running_mates[candidate].state == self.state:
                     self.points[candidate] += 10
 
+    def popularity_contest(self):
+        for candidate in self.general_candidates:
+            if candidate.party.letter == 'D' or candidate.party.letter == 'R':
+                if candidate == self.nation.president:
+                    self.points[candidate] += self.state.stats["presidential_approval"].value/2
+                else:
+                    self.points[candidate] += candidate.stats["popularity"].value/2
+
     def unified_party_contest(self):
         for primary_opponent in self.nation.presidential_hopefuls[self.defender.party]:
             if (primary_opponent != self.defender and 

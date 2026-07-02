@@ -2,7 +2,7 @@ from statholder import StatHolder
 from pollstats import PollStat, StatVector, StatOperations
 from parties import Party
 from locations import State, City
-from people import Representative, Senator, Governor, Mayor, President
+from people import Representative, Senator, Governor, Mayor, President, VicePresident
 from issues import Issue, AllIssues, Stance
 import random
 
@@ -75,7 +75,7 @@ class Nation:
         for party in parties:
             if party != player_party:
                 self.president = President(party, self.states[0], years_in_office=8)
-                self.vice_president = President(party, self.states[random.randint(0, 49)])
+                self.vice_president = VicePresident(party, self.states[random.randint(0, 49)])
                 for state in self.states:
                     state.rep_composition[party] = round(state.rep_number * 0.6)
                     state.rep_composition[player_party] = round(state.rep_number - state.rep_composition[party])

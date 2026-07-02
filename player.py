@@ -11,7 +11,19 @@ class Player:
         return
     
     def choose_presidential_ticket(self, nation):
-        return [nation.presidential_hopefuls[self.party][3], nation.presidential_hopefuls[self.party][0]]
+        presidential_hopefuls = nation.presidential_hopefuls[self.party].copy()
+        if nation.president in presidential_hopefuls:
+            return [nation.president, nation.vice_president]
+        presidential_hopefuls.sort(key=lambda p: p.distance_between_stats(self.party, ["economic_stance", "foreign_stance", "social_stance"]))
+        if nation.vice_president in presidential_hopefuls:
+            for i in range(len(presidential_hopefuls)):
+                if presidential_hopefuls[i] != nation.vice_president:
+                    return [nation.vice_president, presidential_hopefuls[i]]
+        else:
+            if presidential_hopefuls[0].stats["charisma"].value >= presidential_hopefuls[1].stats["charisma"].value:
+                return [presidential_hopefuls[0], presidential_hopefuls[1]]
+            else:
+                return [presidential_hopefuls[0], presidential_hopefuls[1]]
     
     def propose_law(self, nation):
         bill_index = random.randint(0, 3)
@@ -104,7 +116,7 @@ class HumanPlayer(Player):
         return bill
 
     def choose_bill_stance(self, bill):
-        player_vote = input(str(bill.proposer) + " is proposing " + str(bill) + ". Will you instruct your party to vote Yea or Nay? ")
+        player_vote = input("The " + str(bill.proposer) + " is proposing " + str(bill) + ". Will you instruct your party to vote Yea or Nay? ")
         if player_vote[0].upper() == 'Y':
             bill.set_party_vote(self.party, "Yea")
         else:
