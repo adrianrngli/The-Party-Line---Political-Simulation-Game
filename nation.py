@@ -88,6 +88,9 @@ class Nation:
     def increment_year(self):
         """Updates all information in the nation when the year advances"""
         self.year += 1
+        for state in self.states:
+            state.increment_year()
+        self.president.calculate_popularity(self.states)
         self.president.increment_year()
         self.vice_president.increment_year()
         for state in self.states:

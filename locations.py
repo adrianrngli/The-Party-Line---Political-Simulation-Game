@@ -7,7 +7,7 @@ class State(StatHolder):
     """A State represents one of the 50 States in the US"""
 
     def __init__(self, name: str, abbreviation: str, region: str, rep_number, largest_city: str):
-        super().__init__(["economic_stance", "foreign_stance", "social_stance", "agriculture", "manufacturing", "professional_services", "public_sector", "wealth", "density"])
+        super().__init__(["economic_stance", "foreign_stance", "social_stance", "agriculture", "manufacturing", "professional_services", "public_sector", "wealth", "density", "presidential_approval"])
         self.name = name
         self.abbreviation = abbreviation
         self.region = region
@@ -112,6 +112,30 @@ class State(StatHolder):
         for opinion in polling.keys():
             polling[opinion] = polling[opinion]/total_vote * 100.0
         return polling
+    
+    def law_popularity(self, issue, stance):
+        approval = dict()
+        approval["approve"] = 0.0
+        approval["disapprove"] = 0.0
+        approval["approve"] += -10 * sqrt(self.stats[issue.type].distance_to(stance)) + 100
+        for industry in stance.industry_effects.keys():
+            approval["approve"] += stance.industry_effects[industry] / 2
+        closest_other_stance = issue.stances[next(iter(issue.stances))]
+        least_distance = self.stats[issue.type].distance_to(closest_other_stance)
+        for other_stance in issue.stances.keys():
+            if closest_other_stance == stance or (other_stance != stance and self.stats[issue.type].distance_to(issue.stances[other_stance]) <= least_distance):
+                closest_other_stance = issue.stances[other_stance]
+                least_distance = self.stats[issue.type].distance_to(issue.stances[other_stance])
+        approval["disapprove"] += -10 * sqrt(least_distance) + 100
+        for industry in closest_other_stance.industry_effects.keys():
+            approval["disapprove"] += closest_other_stance.industry_effects[industry] / 2
+        total_vote = approval["approve"] + approval["disapprove"]
+        for option in ["approve", "disapprove"]:
+            approval[option] /= total_vote
+        return approval["approve"]
+    
+    def increment_year(self):
+        self.stats["presidential_approval"].subtract(5.0)
 
     def __str__(self):
         return self.name

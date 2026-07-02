@@ -100,9 +100,19 @@ for i in range(60):
                 presidential_candidates.append(ticket[0])
                 running_mates[ticket[0]] = ticket[1]
             presidential_election = NationalPresidentialElection(nation, presidential_candidates, running_mates)
-            input("Press enter to run the presidential election. ")
-            presidential_election.run_election()
-            print()
+    if nation.year != 1960:
+        for player in players:
+            if player.party == nation.get_house_majority_party():
+                proposed_bill = player.propose_law(nation)
+        for player in players:
+            if player.party != nation.get_house_majority_party():
+                player.choose_bill_stance(proposed_bill)
+        print(proposed_bill.try_to_pass())
+    if nation.year % 4 == 0:
+        input("Press enter to run the presidential election. ")
+        presidential_election.run_election()
+        print()
+    if not senate_elections.no_elections():
         input("Press enter to run senate elections. ")
         senate_elections.run_elections()
         print(nation.get_senate_totals())

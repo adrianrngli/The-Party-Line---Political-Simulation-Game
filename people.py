@@ -152,6 +152,23 @@ class Senator(Politician):
     def retire(self):
         super().retire()
         self.state.remove_senator(self)
+
+    def get_bill_vote(self, issue, stance, party_vote, president):
+        if self.get_stance(issue) == stance:
+            return "Yea"
+        elif party_vote == "Yea" or stance.moderate:
+            state_approval = self.state.law_popularity(issue, stance)
+            if self.state.stats["presidential_approval"].value > 50.0 and president.get_stance(issue) == stance:
+                if president.party == self.party:
+                    state_approval += (self.state.stats["presidential_approval"].value - 50.0) / 2
+                else:
+                    state_approval += (self.state.stats["presidential_approval"].value - 50.0) / 4
+            if state_approval > 50.0:
+                return "Yea"
+            else:
+                return "Nay"
+        else:
+            return "Nay"
     
     def __str__(self):
         return "Senator "+super().__str__()
@@ -209,10 +226,17 @@ class President(Politician):
     def increment_year(self):
         super().increment_year()
         self.years_in_office += 1
-        self.stats["popularity"].value -= random.gauss(5.0, 1.0)
 
     def __str__(self):
         return "President " + super().__str__()[:-4] + ")" 
+    
+    def calculate_popularity(self, states):
+        average_popularity = 0.0
+        for state in states:
+            average_popularity += state.stats["presidential_approval"].value * state.rep_number
+        average_popularity /= 435
+        self.set_stat("popularity", average_popularity)
+        return self.stats["popularity"].value
     
 class VicePresident(Politician):
     def __init__(self, party, state):
@@ -220,7 +244,7 @@ class VicePresident(Politician):
 
     def increment_year(self):
         super().increment_year()
-        self.stats["popularity"].value -= random.gauss(5.0, 1.0)
+        self.stats["popularity"].subtract(5)
 
     def __str__(self):
         return "Vice President " + super().__str__()[:-4] + ")" 
@@ -235,7 +259,7 @@ def convert_to_senator(person, year):
     new_senator.stats = person.stats
     return new_senator
 
-def convert_to_president(person):
+def convert_to_president(person, states):
     new_president = President(person.party, person.state)
     new_president.first_name = person.first_name
     new_president.middle_initial = person.middle_initial
@@ -243,7 +267,10 @@ def convert_to_president(person):
     new_president.age = person.age
     new_president.years_of_experience = person.years_of_experience
     new_president.stats = person.stats
-    new_president.stats["popularity"].add(15)
+    for state in states:
+        state.set_stat("presidential_approval", person.stats["popularity"].value)
+        state.stats["presidential_approval"].add(17.5)
+    new_president.calculate_popularity(states)
     return new_president
 
 def convert_to_vice_president(person):
@@ -254,5 +281,5 @@ def convert_to_vice_president(person):
     new_vp.age = person.age
     new_vp.years_of_experience = person.years_of_experience
     new_vp.stats = person.stats
-    new_vp.stats["popularity"].add(15)
+    new_vp.stats["popularity"].add(17.5)
     return new_vp

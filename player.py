@@ -1,5 +1,7 @@
 from parties import Party
 from display_objects import display_person, display_state
+from laws import Bill
+import random
 
 class Player:
     def __init__(self, party):
@@ -10,6 +12,16 @@ class Player:
     
     def choose_presidential_ticket(self, nation):
         return [nation.presidential_hopefuls[self.party][3], nation.presidential_hopefuls[self.party][0]]
+    
+    def propose_law(self, nation):
+        bill_index = random.randint(0, 3)
+        return Bill(nation.issues[bill_index], self.party.get_stance(nation.issues[bill_index]), self.party, nation.year, nation)
+    
+    def choose_bill_stance(self, bill):
+        if bill.stance == self.party.get_stance(bill.issue):
+            bill.set_party_vote(self.party, "Yea")
+        else:
+            bill.set_party_vote(self.party, "Nay")
 
 class HumanPlayer(Player):
     def __init__(self, party):
@@ -64,6 +76,33 @@ class HumanPlayer(Player):
             platform[issue] = stances[choice - 1]
         self.party.set_platform(platform)
 
+    def propose_law(self, nation):
+        """Prompt the player to choose an issue and a stance, then attempt to pass a bill on it"""
+        issues = nation.issues
+        for i in range(len(issues)):
+            print(str(i + 1) + ". " + str(issues[i]))
+        issue_choice = 0
+        while issue_choice < 1 or issue_choice > len(issues):
+            issue_choice = int(input("Enter the number of the issue you would like to legislate on "))
+        issue = issues[issue_choice - 1]
+
+        stances = list(issue.stances.values())
+        for i in range(len(stances)):
+            print(str(i + 1) + ". " + str(stances[i]))
+        stance_choice = 0
+        while stance_choice < 1 or stance_choice > len(stances):
+            stance_choice = int(input("Enter the number of the stance your law will take "))
+        stance = stances[stance_choice - 1]
+
+        bill = Bill(issue, stance, self.party, nation.year, nation)
+        return bill
+
+    def choose_bill_stance(self, bill):
+        player_vote = input(str(bill.proposer) + " is proposing " + str(bill) + ". Will you instruct your party to vote Yea or Nay? ")
+        if player_vote[0].upper() == 'Y':
+            bill.set_party_vote(self.party, "Yea")
+        else:
+            bill.set_party_vote(self.party, "Nay")
 
 class CPUPlayer(Player):
     def __init__(self, party):

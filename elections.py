@@ -413,7 +413,7 @@ class NationalPresidentialElection(Election):
             raise Exception()
         if self.winner != self.nation.president:
             self.winner.retired = True
-            self.nation.president = convert_to_president(self.winner)
+            self.nation.president = convert_to_president(self.winner, self.nation.states)
         if self.running_mates[self.winner] != self.nation.vice_president:
             self.running_mates[self.winner].retired = True
             self.nation.vice_president = convert_to_vice_president(self.running_mates[self.winner])
