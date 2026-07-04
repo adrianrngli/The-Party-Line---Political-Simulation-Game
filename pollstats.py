@@ -33,6 +33,11 @@ class PollStat:
         self.value -= quantity
         self.bound()
 
+    def push_toward(self, other, factor = 0.2):
+        self.add((other.value - self.value) * factor)
+
+    def push_away_from(self, other, factor = 0.2):
+        self.add((other.value - self.value) * factor)
     
 class StatVector:
     """StatVectors represent a change in a stat. They can be applied to PollStats"""

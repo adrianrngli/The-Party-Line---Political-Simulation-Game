@@ -9,6 +9,7 @@ class Party(StatHolder):
         self.name = name
         self.letter = letter
         self.platform = None
+        self.set_stat("popularity", 53.0)
     
     def set_political_stances(self, economic_stance, foreign_stance, social_stance):
         """Sets the political stances of the party"""

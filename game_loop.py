@@ -65,21 +65,21 @@ for state in nation.states:
             pass
 
 
+print(nation.year)
+    
+print("President:")
+print(nation.president)
+print("Presidential approval rating: " + str(round(nation.president.stats["popularity"].value, 1)) + "% approve")
+print("Senate composition:")
+print(nation.get_senate_totals())
+print("House composition:")
+print(nation.get_house_totals())
+for i in range(2):
+    print(str(nation.parties[i]) + " approval rating: " + str(round(nation.parties[i].stats["popularity"].value, 1)) + "% approve")
+print("Polling on issues: ")
+nation.display_polling_on_issues()
 
 for i in range(60):
-    print(nation.year)
-    
-    print("President:")
-    print(nation.president)
-    print("Presidential approval rating: " + str(round(nation.president.stats["popularity"].value, 1)) + "% approve")
-    print("Senate composition:")
-    print(nation.get_senate_totals())
-    print("House composition:")
-    print(nation.get_house_totals())
-    for i in range(2):
-        print(str(nation.parties[i]) + " approval rating: " + str(round(nation.parties[i].stats["popularity"].value, 1)) + "% approve")
-    print("Polling on issues: ")
-    nation.display_polling_on_issues()
     
     senate_elections = NationalSenateElection(nation)
     
@@ -107,7 +107,12 @@ for i in range(60):
         for player in players:
             if player.party != nation.get_house_majority_party():
                 player.choose_bill_stance(proposed_bill)
-        print(proposed_bill.try_to_pass())
+        outcome = proposed_bill.try_to_pass()
+        print(outcome)
+        if outcome == "Passed":
+            nation.record_law(proposed_bill)
+    print()
+    nation.mid_year_update()
     if nation.year % 4 == 0:
         input("Press enter to run the presidential election. ")
         presidential_election.run_election()

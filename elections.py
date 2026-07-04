@@ -19,6 +19,12 @@ class StateHouseElection(Election):
         for i in range(2):
             self.points[self.nation.parties[i]] = 0
 
+    def first_year_contest(self):
+        if self.nation.year == 1960:
+            for i in range(2):
+                if self.nation.parties[i] == self.nation.president.party:
+                    self.points[self.nation.parties[i]] += 100
+
     def issues_contest(self):
         for i in range(2):
             for issue in self.nation.issues:
@@ -47,6 +53,7 @@ class StateHouseElection(Election):
             self.points[self.nation.parties[i]] += partitions[i+1] - partitions[i]
 
     def run_election(self):
+        self.first_year_contest()
         self.issues_contest()
         self.popularity_contest()
         self.headwinds_contest()
@@ -119,6 +126,11 @@ class StateSenateElection(StateElection):
         super().__init__(state, nation, general_candidates)
         self.outgoing = outgoing
 
+    def first_year_contest(self):
+        if self.nation.year == 1960:
+            for candidate in self.general_candidates:
+                if (candidate.party.letter == 'D' or candidate.party.letter == 'R') and candidate.party == self.nation.president.party:
+                    self.points[candidate] += 100
    
     def incumbency_contest(self):
         for candidate in self.general_candidates:
@@ -136,6 +148,7 @@ class StateSenateElection(StateElection):
         """runs the election. Elections are made up of contests giving each candidate points. 
         Based on the result of these contests, the winner is made into the new senator.
         returns the results as a string"""
+        self.first_year_contest()
         self.fame_contest()
         self.popularity_contest()
         self.charisma_contest()
@@ -241,6 +254,12 @@ class StatePresidentialElection(StateElection):
             self.challenger = self.general_candidates[0]
             self.defender = self.general_candidates[1]
 
+    def first_year_contest(self):
+        if self.nation.year == 1960:
+            for candidate in self.general_candidates:
+                if (candidate.party.letter == 'D' or candidate.party.letter == 'R') and candidate.party != self.nation.president.party:
+                    self.points[candidate] += 100
+
     def locality_contest(self):
         for candidate in self.general_candidates:
             if candidate.state.region == self.state.region:
@@ -268,6 +287,19 @@ class StatePresidentialElection(StateElection):
                 self.points[self.challenger] += 15
                 return
         self.points[self.defender] += 15
+
+    def party_mandate_contest(self):
+        house_vote_difference = 0
+        for year in [self.nation.year - 4, self.nation.year - 2]:
+            result_string = self.nation.house_election_results[year]
+            if result_string[0] == self.defender.party.letter:
+                house_vote_difference += int(result_string[2:])
+            elif result_string[0] == self.challenger.party.letter:
+                house_vote_difference -= int(result_string[2:])
+        if house_vote_difference > 0:
+            self.points[self.defender] += 15
+        else:
+            self.points[self.challenger] += 15
     
     def incumbency_contest(self):
         if self.defender == self.nation.president:
@@ -293,16 +325,30 @@ class StatePresidentialElection(StateElection):
             self.points[self.challenger] += 15
         else:
             self.points[self.defender] += 15
+        
+    def bills_contest(self):
+        major_bill_passed = False
+        for year in range(self.nation.year - 3, self.nation.year + 1):
+            if self.nation.laws_passed[year] != None and not self.nation.laws_passed[year].stance.moderate:
+                major_bill_passed = True
+                law = self.nation.laws_passed[year]
+                if self.state.law_popularity(law.issue, law.stance) > 50.0:
+                    self.points[self.defender] += 5
+        if not major_bill_passed:
+            self.points[self.challenger] += 15
 
     def run_election(self):
+        self.first_year_contest()
         self.charisma_contest()
         self.popularity_contest()
         self.issues_contest()
         self.locality_contest()
+        self.party_mandate_contest()
         self.unified_party_contest()
         self.incumbency_contest()
         self.no_third_party_contest()
         self.no_recession_contest()
+        self.bills_contest()
         self.elite_charisma_contest()
         self.random_contest()
         total_points = 0
@@ -452,4 +498,5 @@ class NationalHouseElection(Election):
             if self.points[self.nation.parties[i]] > self.initial_seats[self.nation.parties[i]]:
                 change_string = self.nation.parties[i].letter + "+" + str(self.points[self.nation.parties[i]] 
                                                                           - self.initial_seats[self.nation.parties[i]])
+        self.nation.house_election_results[self.nation.year] = change_string
         print(outcome_string + " (" + change_string + ")")

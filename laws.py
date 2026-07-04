@@ -12,7 +12,10 @@ class Bill:
         self.senate_composition = self.nation.get_senate_composition()
 
     def get_national_popularity(self):
-        return
+        total_approval = 0.0
+        for state in self.nation.states:
+            total_approval += state.law_popularity(self.issue, self.stance) * state.rep_number
+        return total_approval/435
     
     def set_party_vote(self, party, vote):
         self.party_votes[party] = vote
@@ -139,7 +142,17 @@ class Bill:
             return "Failed House vote"
         
     def implement(self):
-        return
+        for i in range(2):
+            if self.party_votes[self.nation.parties[i]] == "Yea":
+                self.nation.parties[i].stats["popularity"].add(self.get_national_popularity() - 50)
+            else:
+                self.nation.parties[i].stats["popularity"].add(50 - self.get_national_popularity())
+        for state in self.nation.states:
+            state.stats["presidential_approval"].add((state.law_popularity(self.issue, self.stance) - 50))
+            if self.issue.type == "economic_stance" and self.stance.value < 50:
+                state.stats["wealth"].add((50-self.stance.value)/4)
+            elif self.issue.type == "social_stance":
+                state.stats["density"].add((state.stats["social_stance"].value-self.stance.value)/2)
 
     def set_party_vote(self, party, vote):
         self.party_votes[party] = vote

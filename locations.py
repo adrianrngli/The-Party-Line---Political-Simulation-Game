@@ -123,7 +123,7 @@ class State(StatHolder):
         closest_other_stance = issue.stances[next(iter(issue.stances))]
         least_distance = self.stats[issue.type].distance_to(closest_other_stance)
         for other_stance in issue.stances.keys():
-            if closest_other_stance == stance or (other_stance != stance and self.stats[issue.type].distance_to(issue.stances[other_stance]) <= least_distance):
+            if closest_other_stance == stance or (issue.stances[other_stance] != stance and self.stats[issue.type].distance_to(issue.stances[other_stance]) <= least_distance):
                 closest_other_stance = issue.stances[other_stance]
                 least_distance = self.stats[issue.type].distance_to(issue.stances[other_stance])
         approval["disapprove"] += -10 * sqrt(least_distance) + 100
@@ -131,11 +131,22 @@ class State(StatHolder):
             approval["disapprove"] += closest_other_stance.industry_effects[industry] / 2
         total_vote = approval["approve"] + approval["disapprove"]
         for option in ["approve", "disapprove"]:
+            approval[option] *= 100
             approval[option] /= total_vote
+        if approval["approve"] == 50.0:
+            print(closest_other_stance, closest_other_stance.value, self.stats[issue.type].value, stance, stance.value)
         return approval["approve"]
     
-    def increment_year(self):
-        self.stats["presidential_approval"].subtract(5.0)
+    def increment_year(self, president):
+        self.stats["presidential_approval"].subtract(2.5)
+        self.stats["economic_stance"].add((self.stats["wealth"].value - 50.0)/4)
+        if self.stats["density"].value > 50.0:
+            self.stats["social_stance"].subtract((self.stats["density"].value - 50.0)/4)
+        for axis in ["economic_stance", "foreign_stance", "social_stance"]:
+            if self.stats["presidential_approval"].value >= 50.0:
+                self.stats[axis].push_toward(president.stats[axis], sqrt(self.stats["presidential_approval"].value - 50.0)/10)
+            else:
+                self.stats[axis].push_away_from(president.stats[axis], sqrt(50.0 - self.stats["presidential_approval"].value)/10)
 
     def __str__(self):
         return self.name

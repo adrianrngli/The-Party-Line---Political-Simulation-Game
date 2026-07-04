@@ -20,6 +20,8 @@ class Nation:
             self.presidential_hopefuls[parties[i]] = []
         self.president = None
         self.vice_president = None
+        self.house_election_results = dict()
+        self.laws_passed = {1957: None, 1958: None, 1959: None, 1960: None}
 
         # initialize states
         with open("input_files/states_basic_info.txt") as file:
@@ -79,6 +81,8 @@ class Nation:
                 for state in self.states:
                     state.rep_composition[party] = round(state.rep_number * 0.6)
                     state.rep_composition[player_party] = round(state.rep_number - state.rep_composition[party])
+                self.house_election_results[1956] = party.letter + "+1"
+                self.house_election_results[1958] = player_party.letter + "+2"
 
         #initialize issues
         self.all_issues = AllIssues()
@@ -89,19 +93,33 @@ class Nation:
         """Updates all information in the nation when the year advances"""
         self.year += 1
         for state in self.states:
-            state.increment_year()
+            state.increment_year(self.president)
         self.president.calculate_popularity(self.states)
+        self.president.party.stats["popularity"].push_toward(self.president.stats["popularity"])
         self.president.increment_year()
-        self.vice_president.increment_year()
+        self.vice_president.increment_year(self.president)
         for state in self.states:
             for sen in state.senators:
                 if sen != None:
-                    sen.increment_year(self.year)
+                    sen.increment_year(self.year, self.president)
                     if sen.retired:
                         state.replace_senator(sen, Senator(sen.party, state, sen.election_year))
             if state.governor != None:
                 state.governor.increment_year()
         self.update_presidential_hopefuls()
+
+        print(self.year)
+        print("President:")
+        print(self.president)
+        print("Presidential approval rating: " + str(round(self.president.stats["popularity"].value, 1)) + "% approve")
+        print("Senate composition:")
+        print(self.get_senate_totals())
+        print("House composition:")
+        print(self.get_house_totals())
+        for i in range(2):
+            print(str(self.parties[i]) + " approval rating: " + str(round(self.parties[i].stats["popularity"].value, 1)) + "% approve")
+        print("Polling on issues: ")
+        self.display_polling_on_issues()
 
     def get_senate_composition(self):
         """Returns a dictionary mapping each party to the amount of senate seats they have"""
@@ -173,6 +191,30 @@ class Nation:
             for stance in issue.stances.keys():
                 poll_string += str(stance) + " " + str(round(poll[stance], 1)) + "% "
             print(poll_string)
+
+    def record_law(self, law):
+        self.laws_passed[self.year] = law
+
+    def mid_year_update(self):
+        for state in self.states:
+            state.stats["presidential_approval"].subtract(2.5)
+        if self.year not in self.laws_passed.keys() or self.laws_passed[self.year] == None:
+            self.laws_passed[self.year] = None
+            self.get_house_majority_party().stats["popularity"].subtract(3)
+            self.get_senate_majority_party().stats["popularity"].subtract(3)
+            for state in self.states:
+                state.stats["presidential_approval"].subtract(3)
+            self.president.calculate_popularity(self.states)
+            print("Presidential approval rating: " + str(round(self.president.stats["popularity"].value, 1)) + "%")
+            for i in range(2):
+                print(str(self.parties[i]) + " approval rating: " + str(round(self.parties[i].stats["popularity"].value, 1)) + "% approve")
+        else:
+            self.laws_passed[self.year].implement()
+            self.president.calculate_popularity(self.states)
+            print("Presidential approval rating: " + str(round(self.president.stats["popularity"].value, 1)) + "%")
+            for i in range(2):
+                print(str(self.parties[i]) + " approval rating: " + str(round(self.parties[i].stats["popularity"].value, 1)) + "% approve")
+            print(str(self.laws_passed[self.year]) + " approval rating: " + str(round(self.laws_passed[self.year].get_national_popularity(), 1)) + "%")
         
     def update_presidential_hopefuls(self):
         new_presidential_hopefuls = dict()

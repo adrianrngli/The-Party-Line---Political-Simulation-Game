@@ -5,6 +5,7 @@ import random
 import string
 from faker import Faker
 from issues import Issue, Stance
+from math import sqrt
 fake = Faker('en_US')
 
 class Politician(StatHolder):
@@ -22,8 +23,8 @@ class Politician(StatHolder):
         self.state = state
         self.age = random.randint(25, 85)
         self.years_of_experience = random.randint(0, self.age-20)
-        self.set_stat("fame", random.uniform(0, 100))
-        self.set_stat("popularity", random.uniform(0, 100))
+        self.set_stat("fame", random.uniform(0, 80))
+        self.set_stat("popularity", random.uniform(20, 65))
         self.set_stat("charisma", random.uniform(0, 100))
         self.set_stat("corruptness", random.uniform(0, 100))
         self.auto_set_stances()
@@ -141,9 +142,14 @@ class Senator(Politician):
                 print(str(self)+" has announced retirement at the age of " + str(self.age)+ " at the end of this term, and will not be running for reelection.")
                 self.set_to_retire = True
 
-    def increment_year(self, year):
+    def increment_year(self, year, president):
         """Updates age and years of experience for the senator. Additionally, if the senator is 65 and up for election they have a chance to announce retirement"""
         super().increment_year()
+        for axis in ["economic_stance", "foreign_stance", "social_stance"]:
+            if president.stats["popularity"].value >= 50.0:
+                self.stats[axis].push_toward(president.stats[axis], sqrt(president.stats["popularity"].value - 50.0)/15)
+            else:
+                self.stats[axis].push_away_from(president.stats[axis], sqrt(50.0 - president.stats["popularity"].value)/15)
         if self.set_to_retire:
             self.retire()
         else:
@@ -242,9 +248,9 @@ class VicePresident(Politician):
     def __init__(self, party, state):
         super().__init__(party, state)
 
-    def increment_year(self):
+    def increment_year(self, president):
         super().increment_year()
-        self.stats["popularity"].subtract(5)
+        self.stats["popularity"].push_toward(president.stats["popularity"])
 
     def __str__(self):
         return "Vice President " + super().__str__()[:-4] + ")" 
