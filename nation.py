@@ -200,7 +200,12 @@ class Nation:
             state.stats["presidential_approval"].subtract(2.5)
         if self.year not in self.laws_passed.keys() or self.laws_passed[self.year] == None:
             self.laws_passed[self.year] = None
-            self.get_house_majority_party().stats["popularity"].subtract(3)
+            house_majority_party = self.get_house_majority_party()
+            if house_majority_party is not None:
+                house_majority_party.stats["popularity"].subtract(3)
+            else:
+                for party in self.parties:
+                    party.stats["popularity"].subtract(1.5)
             self.get_senate_majority_party().stats["popularity"].subtract(3)
             for state in self.states:
                 state.stats["presidential_approval"].subtract(3)
