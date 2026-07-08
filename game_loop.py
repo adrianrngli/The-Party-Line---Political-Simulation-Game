@@ -101,16 +101,19 @@ for i in range(60):
                 running_mates[ticket[0]] = ticket[1]
             presidential_election = NationalPresidentialElection(nation, presidential_candidates, running_mates)
     if nation.year != 1960:
-        for player in players:
-            if player.party == nation.get_house_majority_party():
-                proposed_bill = player.propose_law(nation)
-        for player in players:
-            if player.party != nation.get_house_majority_party():
-                player.choose_bill_stance(proposed_bill)
-        outcome = proposed_bill.try_to_pass()
-        print(outcome)
-        if outcome == "Passed":
-            nation.record_law(proposed_bill)
+        proposing_party = nation.get_house_majority_party()
+        if proposing_party is not None:
+            proposed_bill = None
+            for player in players:
+                if player.party == proposing_party:
+                    proposed_bill = player.propose_law(nation)
+            for player in players:
+                if player.party != proposing_party:
+                    player.choose_bill_stance(proposed_bill)
+            outcome = proposed_bill.try_to_pass()
+            print(outcome)
+            if outcome == "Passed":
+                nation.record_law(proposed_bill)
     print()
     nation.mid_year_update()
     if nation.year % 4 == 0:

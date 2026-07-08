@@ -103,9 +103,6 @@ class Bill:
             return False
 
     
-    def get_house_vote(self):
-        return
-    
     def get_senate_vote(self):
         party_tallies = dict()
         for i in range(2):
@@ -113,7 +110,7 @@ class Bill:
         if party_tallies[self.nation.parties[0]] + party_tallies[self.nation.parties[1]] == 50:
             self.senate_composition[self.nation.president.party] += 1
             if self.party_votes[self.nation.president.party] == "Yea":
-                self.party_tallies[self.nation.president.party] += 1
+                party_tallies[self.nation.president.party] += 1
         return party_tallies[self.nation.parties[0]] + party_tallies[self.nation.parties[1]]
     
     def get_presidential_approval(self):
@@ -153,9 +150,6 @@ class Bill:
                 state.stats["wealth"].add((50-self.stance.value)/4)
             elif self.issue.type == "social_stance":
                 state.stats["density"].add((state.stats["social_stance"].value-self.stance.value)/2)
-
-    def set_party_vote(self, party, vote):
-        self.party_votes[party] = vote
 
     def __str__(self):
         return "The " + str(self.stance) + " Act of " + str(self.year)
