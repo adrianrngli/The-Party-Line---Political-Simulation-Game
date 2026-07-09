@@ -115,6 +115,20 @@ class Politician(StatHolder):
             return "criminal"
         else:
             return "pants on fire"
+        
+    def run_random_event(self, events):
+        random_seed = random.randint(0, 499)
+        if random_seed < sqrt(self.stats["corruptness"].value/max(self.years_of_experience, 1)):
+            scandal = events.random_scandal()
+            scandal.apply(self)
+            print(scandal.generate_headline(self))
+            return
+        random_seed = random.randint(0, 499)
+        if random_seed < sqrt(100 - self.stats["charisma"].value):
+            gaffe = events.random_gaffe()
+            gaffe.apply(self)
+            print(gaffe.generate_headline(self))
+            return
     
 class Representative(Politician):
     """Represents a House Representative. Representatives vote on laws."""

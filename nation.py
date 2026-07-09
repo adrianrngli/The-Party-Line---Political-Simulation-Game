@@ -4,6 +4,7 @@ from parties import Party
 from locations import State, City
 from people import Representative, Senator, Governor, Mayor, President, VicePresident
 from issues import Issue, AllIssues, Stance
+from random_events import AllPopularityEvents
 import random
 
 class Nation:
@@ -86,6 +87,7 @@ class Nation:
 
         #initialize issues
         self.all_issues = AllIssues()
+        self.popularity_events = AllPopularityEvents()
 
         self.update_presidential_hopefuls()
 
@@ -196,6 +198,15 @@ class Nation:
         self.laws_passed[self.year] = law
 
     def mid_year_update(self):
+        for state in self.states:
+            for sen in state.senators:
+                sen.run_random_event(self.popularity_events)
+            if state.governor != None:
+                state.governor.run_random_event(self.popularity_events)
+            if state.largest_city.mayor != None:
+                state.largest_city.mayor.run_random_event(self.popularity_events)
+        self.president.run_random_event(self.popularity_events)
+        self.vice_president.run_random_event(self.popularity_events)
         for state in self.states:
             state.stats["presidential_approval"].subtract(2.5)
         if self.year not in self.laws_passed.keys() or self.laws_passed[self.year] == None:
