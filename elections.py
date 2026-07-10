@@ -316,6 +316,12 @@ class StatePresidentialElection(StateElection):
     def no_recession_contest(self):
         self.points[self.defender] += 15
 
+    def scandal_contest(self):
+        if self.nation.presidential_scandal:
+            self.points[self.challenger] += 15
+        else:
+            self.points[self.defender] += 15
+
     def elite_charisma_contest(self):
         if self.defender.stats["charisma"].value > 92.0:
             self.points[self.defender] += 15

@@ -117,18 +117,18 @@ class Politician(StatHolder):
             return "pants on fire"
         
     def run_random_event(self, events):
-        random_seed = random.randint(0, 499)
+        random_seed = random.random() * 500
         if random_seed < sqrt(self.stats["corruptness"].value/max(self.years_of_experience, 1)):
             scandal = events.random_scandal()
             scandal.apply(self)
             print(scandal.generate_headline(self))
-            return
-        random_seed = random.randint(0, 499)
+            return scandal
+        random_seed = random.random() * 500
         if random_seed < sqrt(100 - self.stats["charisma"].value):
             gaffe = events.random_gaffe()
             gaffe.apply(self)
             print(gaffe.generate_headline(self))
-            return
+            return gaffe 
     
 class Representative(Politician):
     """Represents a House Representative. Representatives vote on laws."""
@@ -257,6 +257,20 @@ class President(Politician):
         average_popularity /= 435
         self.set_stat("popularity", average_popularity)
         return self.stats["popularity"].value
+    
+    def run_random_event(self, events, states):
+        random_seed = random.random() * 100
+        if random_seed < self.stats["corruptness"].value/max(self.years_of_experience, 1):
+            scandal = events.random_scandal()
+            scandal.apply_to_president(states)
+            print(scandal.generate_headline(self))
+            return scandal
+        random_seed = random.random() * 100
+        if random_seed < 100 - self.stats["charisma"].value:
+            gaffe = events.random_gaffe()
+            gaffe.apply_to_president(states)
+            print(gaffe.generate_headline(self))
+            return gaffe 
     
 class VicePresident(Politician):
     def __init__(self, party, state):

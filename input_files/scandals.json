@@ -1,0 +1,34 @@
+[
+    {
+        "magnitude": 20,
+        "type": "corruption"
+    },
+    {
+        "magnitude": 15,
+        "type": "tax evasion"
+    },
+    {
+        "magnitude": 25,
+        "type": "bribery"
+    },
+    {
+        "magnitude": 18,
+        "type": "campaign finance"
+    },
+    {
+        "magnitude": 22,
+        "type": "insider trading"
+    },
+    {
+        "magnitude": 12,
+        "type": "plagiarism"
+    },
+    {
+        "magnitude": 30,
+        "type": "personal misconduct"
+    },
+    {
+        "magnitude": 16,
+        "type": "abuse of power"
+    }
+]

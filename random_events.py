@@ -12,6 +12,10 @@ class Gaffe:
     def apply(self, person):
         person.stats["popularity"].subtract(self.magnitude)
 
+    def apply_to_president(self, states):
+        for state in states:
+            state.stats["presidential_approval"].subtract(self.magnitude)
+
 class Scandal:
     def __init__(self, magnitude, type):
         self.magnitude = magnitude
@@ -22,6 +26,10 @@ class Scandal:
 
     def apply(self, person):
         person.stats["popularity"].subtract(self.magnitude)
+
+    def apply_to_president(self, states):
+        for state in states:
+            state.stats["presidential_approval"].subtract(self.magnitude)
 
 class AllGaffes:
     """Loads all gaffes from file and provides access to them, including a random gaffe."""

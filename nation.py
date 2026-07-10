@@ -4,7 +4,7 @@ from parties import Party
 from locations import State, City
 from people import Representative, Senator, Governor, Mayor, President, VicePresident
 from issues import Issue, AllIssues, Stance
-from random_events import AllPopularityEvents
+from random_events import AllPopularityEvents, Scandal
 import random
 
 class Nation:
@@ -23,6 +23,7 @@ class Nation:
         self.vice_president = None
         self.house_election_results = dict()
         self.laws_passed = {1957: None, 1958: None, 1959: None, 1960: None}
+        self.presidential_scandal = True
 
         # initialize states
         with open("input_files/states_basic_info.txt") as file:
@@ -94,6 +95,8 @@ class Nation:
     def increment_year(self):
         """Updates all information in the nation when the year advances"""
         self.year += 1
+        if self.year % 4 == 1:
+            self.presidential_scandal = False
         for state in self.states:
             state.increment_year(self.president)
         self.president.calculate_popularity(self.states)
@@ -205,7 +208,9 @@ class Nation:
                 state.governor.run_random_event(self.popularity_events)
             if state.largest_city.mayor != None:
                 state.largest_city.mayor.run_random_event(self.popularity_events)
-        self.president.run_random_event(self.popularity_events)
+        president_event = self.president.run_random_event(self.popularity_events, self.states)
+        if president_event != None and type(president_event) == Scandal:
+            self.presidential_scandal = True
         self.vice_president.run_random_event(self.popularity_events)
         for state in self.states:
             state.stats["presidential_approval"].subtract(2.5)
