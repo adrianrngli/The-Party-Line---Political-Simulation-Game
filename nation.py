@@ -5,6 +5,7 @@ from locations import State, City
 from people import Representative, Senator, Governor, Mayor, President, VicePresident
 from issues import Issue, AllIssues, Stance
 from random_events import AllPopularityEvents, Scandal
+from economies import MultipleIndustryTracker, EconRecord, economic_forecast
 import random
 
 class Nation:
@@ -14,7 +15,6 @@ class Nation:
         self.states = []
         self.parties = parties
         self.issues = issues
-        self.in_recession = False
         self.in_unrest = False
         self.presidential_hopefuls = dict()
         for i in range(2):
@@ -24,6 +24,8 @@ class Nation:
         self.house_election_results = dict()
         self.laws_passed = {1957: None, 1958: None, 1959: None, 1960: None}
         self.presidential_scandal = True
+        self.industry_tracker = MultipleIndustryTracker(["agriculture", "manufacturing", "professional_services", "public_sector"], self.year)
+        self.econ_record = EconRecord()
 
         # initialize states
         with open("input_files/states_basic_info.txt") as file:
@@ -112,6 +114,7 @@ class Nation:
             if state.governor != None:
                 state.governor.increment_year()
         self.update_presidential_hopefuls()
+        self.industry_tracker.increment_year()
 
         print(self.year)
         print("President:")
@@ -121,6 +124,7 @@ class Nation:
         print(self.get_senate_totals())
         print("House composition:")
         print(self.get_house_totals())
+        print(f"The US economy grew by {round(self.econ_record.get_growth(self.year - 1), 1)}% last year.")
         for i in range(2):
             print(str(self.parties[i]) + " approval rating: " + str(round(self.parties[i].stats["popularity"].value, 1)) + "% approve")
         print("Polling on issues: ")
@@ -202,6 +206,7 @@ class Nation:
 
     def mid_year_update(self):
         for state in self.states:
+            state.stats["presidential_approval"].subtract(2.5)
             for sen in state.senators:
                 sen.run_random_event(self.popularity_events)
             if state.governor != None:
@@ -212,8 +217,6 @@ class Nation:
         if president_event != None and type(president_event) == Scandal:
             self.presidential_scandal = True
         self.vice_president.run_random_event(self.popularity_events)
-        for state in self.states:
-            state.stats["presidential_approval"].subtract(2.5)
         if self.year not in self.laws_passed.keys() or self.laws_passed[self.year] == None:
             self.laws_passed[self.year] = None
             house_majority_party = self.get_house_majority_party()
@@ -226,16 +229,27 @@ class Nation:
             for state in self.states:
                 state.stats["presidential_approval"].subtract(3)
             self.president.calculate_popularity(self.states)
-            print("Presidential approval rating: " + str(round(self.president.stats["popularity"].value, 1)) + "%")
-            for i in range(2):
-                print(str(self.parties[i]) + " approval rating: " + str(round(self.parties[i].stats["popularity"].value, 1)) + "% approve")
         else:
             self.laws_passed[self.year].implement()
-            self.president.calculate_popularity(self.states)
-            print("Presidential approval rating: " + str(round(self.president.stats["popularity"].value, 1)) + "%")
-            for i in range(2):
-                print(str(self.parties[i]) + " approval rating: " + str(round(self.parties[i].stats["popularity"].value, 1)) + "% approve")
+        for state in self.states:
+            state.update_economy(self.industry_tracker, self.year)
+        self.calculate_economic_growth()
+        self.president.calculate_popularity(self.states)
+        print("Presidential approval rating: " + str(round(self.president.stats["popularity"].value, 1)) + "%")
+        for i in range(2):
+            print(str(self.parties[i]) + " approval rating: " + str(round(self.parties[i].stats["popularity"].value, 1)) + "% approve")
+        if self.laws_passed[self.year] != None:
             print(str(self.laws_passed[self.year]) + " approval rating: " + str(round(self.laws_passed[self.year].get_national_popularity(), 1)) + "%")
+        if self.econ_record.get_growth(self.year) < 0.0:
+            print("The US has entered a recession!")
+        print(economic_forecast(self.econ_record.get_growth(self.year)))
+
+    def calculate_economic_growth(self):
+        total_national_growth = 0.0
+        for state in self.states:
+            total_national_growth += state.get_growth(self.year) * state.rep_number
+        total_national_growth /= 435
+        self.econ_record.write_entry(self.year, total_national_growth)
         
     def update_presidential_hopefuls(self):
         new_presidential_hopefuls = dict()

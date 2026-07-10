@@ -1,5 +1,6 @@
 from statholder import StatHolder
 from pollstats import StatOperations
+from economies import EconRecord
 from math import sqrt
 
 class State(StatHolder):
@@ -15,6 +16,7 @@ class State(StatHolder):
         self.senators = [None, None]
         self.governor = None
         self.rep_composition = dict()
+        self.econ_record = EconRecord()
     
     def add_senator(self, senator):
         """Add a senator into a state's vacant senate seat"""
@@ -146,6 +148,16 @@ class State(StatHolder):
                 self.stats[axis].push_toward(president.stats[axis], sqrt(self.stats["presidential_approval"].value - 50.0)/10)
             else:
                 self.stats[axis].push_away_from(president.stats[axis], sqrt(50.0 - self.stats["presidential_approval"].value)/10)
+
+    def update_economy(self, industry_changes, year):
+        if year not in self.econ_record.years():
+            total_economic_change = 0.0
+            for industry in ["agriculture", "manufacturing", "professional_services", "public_sector"]:
+                total_economic_change += industry_changes.get_growth(industry) * self.stats[industry].value / 100.0
+            self.econ_record.write_entry(year, total_economic_change)
+
+    def get_growth(self, year):
+        return self.econ_record.get_growth(year)
 
     def __str__(self):
         return self.name
