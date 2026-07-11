@@ -12,11 +12,11 @@
         "action": " forgot which state they were campaigning in"
     },
     {
-        "magnitude": 6,
+        "magnitude": 2,
         "action": " called a supporter by the wrong name at a rally"
     },
     {
-        "magnitude": 8,
+        "magnitude": 4,
         "action": " confused two branches of the federal government"
     },
     {
@@ -28,7 +28,7 @@
         "action": " misquoted the Constitution"
     },
     {
-        "magnitude": 7,
+        "magnitude": 4,
         "action": " froze mid-speech"
     }
 ]

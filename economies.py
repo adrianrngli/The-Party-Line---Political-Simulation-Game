@@ -5,8 +5,8 @@ class IndustryGrowthTracker:
         self.industry = industry
         self.year = year
         self.baseline = 2.0
-        self.increment = 0.75
-        self.std = 0.5
+        self.increment = 1.25
+        self.std = 0.75
         self.cycle = [2, 2, 1, 0, -1, -2, -1, 0, 1]
         self.growth = random.gauss(self.baseline + self.cycle[year % 9] * self.increment, self.std)
 
@@ -48,6 +48,15 @@ class EconRecord:
     def get_growth(self, year):
         return self.record[year]
     
+    def average_growth(self, start_year, end_year):
+        total_growth = 0.0
+        year_count = 0
+        for year in range(start_year, end_year + 1):
+            if year in self.years():
+                total_growth += self.record[year]
+                year_count += 1
+        return total_growth/year_count
+    
 def economic_forecast(growth):
     if growth < -0.5:
         return "The US economy is forecasted to shrink this year."
@@ -55,9 +64,9 @@ def economic_forecast(growth):
         return "US economic growth stagnates this year."
     elif growth < 1.5:
         return "The US economy is forecasted to grow slightly this year."
-    elif growth < 2.5:
-        return "US economic growth is moderate this year."
     elif growth < 3.5:
+        return "US economic growth is moderate this year."
+    elif growth < 4.5:
         return "The US economy is forecasted to grow significantly this year."
     else:
         return "The US economy undergrows record growth!"
