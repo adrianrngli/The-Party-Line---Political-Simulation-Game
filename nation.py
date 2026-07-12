@@ -7,6 +7,7 @@ from issues import Issue, AllIssues, Stance
 from random_events import AllPopularityEvents, Scandal
 from economies import MultipleIndustryTracker, EconRecord, economic_forecast
 import random
+from math import sqrt
 
 class Nation:
     """Represents the entire nation, holding all of the states and national information"""
@@ -102,9 +103,15 @@ class Nation:
         for state in self.states:
             state.increment_year(self.president)
         self.president.calculate_popularity(self.states)
-        self.president.party.stats["popularity"].push_toward(self.president.stats["popularity"])
+        self.president.party.stats["popularity"].push_toward(self.president.stats["popularity"], 0.1)
         self.president.increment_year()
         self.vice_president.increment_year(self.president)
+        for party in self.parties:
+            if (party.letter == 'D' or party.letter == 'R') and party != self.president.party:
+                if self.president.stats["popularity"].value > 50:
+                    party.stats["popularity"].subtract(sqrt(self.president.stats["popularity"].value - 50)/5)
+                else:
+                    party.stats["popularity"].add(sqrt(50 - self.president.stats["popularity"].value)/5)
         for state in self.states:
             for sen in state.senators:
                 if sen != None:
@@ -207,6 +214,8 @@ class Nation:
     def mid_year_update(self):
         for state in self.states:
             state.stats["presidential_approval"].subtract(2.5)
+            state.update_economy(self.industry_tracker, self.year)
+            state.stats["presidential_approval"].add((state.econ_record.get_growth(self.year) - 2.0) * 1.5)
             for sen in state.senators:
                 sen.run_random_event(self.popularity_events)
             if state.governor != None:
@@ -231,10 +240,15 @@ class Nation:
             self.president.calculate_popularity(self.states)
         else:
             self.laws_passed[self.year].implement()
-        for state in self.states:
-            state.update_economy(self.industry_tracker, self.year)
         self.calculate_economic_growth()
         self.president.calculate_popularity(self.states)
+        self.president.party.stats["popularity"].push_toward(self.president.stats["popularity"], 0.1)
+        for party in self.parties:
+            if (party.letter == 'D' or party.letter == 'R') and party != self.president.party:
+                if self.president.stats["popularity"].value > 50:
+                    party.stats["popularity"].subtract(sqrt(self.president.stats["popularity"].value - 50)/5)
+                else:
+                    party.stats["popularity"].add(sqrt(50 - self.president.stats["popularity"].value)/5)
         print("Presidential approval rating: " + str(round(self.president.stats["popularity"].value, 1)) + "%")
         for i in range(2):
             print(str(self.parties[i]) + " approval rating: " + str(round(self.parties[i].stats["popularity"].value, 1)) + "% approve")
