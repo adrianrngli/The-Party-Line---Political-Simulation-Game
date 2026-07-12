@@ -26,11 +26,11 @@ class PollStat:
         self.bound()
 
     def add(self, quantity):
-        self.value += quantity
+        self.value += random.gauss(quantity, quantity * 0.1)
         self.bound()
 
     def subtract(self, quantity):
-        self.value -= quantity
+        self.value -= random.gauss(quantity, quantity * 0.1)
         self.bound()
 
     def push_toward(self, other, factor = 0.2):
