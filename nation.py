@@ -101,7 +101,7 @@ class Nation:
         if self.year % 4 == 1:
             self.presidential_scandal = False
         for state in self.states:
-            state.increment_year(self.president)
+            state.increment_year(self.president, self.year)
         self.president.calculate_popularity(self.states)
         self.president.party.stats["popularity"].push_toward(self.president.stats["popularity"], 0.1)
         self.president.increment_year()

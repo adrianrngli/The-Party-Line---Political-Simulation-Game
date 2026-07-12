@@ -4,6 +4,10 @@ def display_state(state, issues=[]):
     print(str(state.rep_number) + " representatives")
     print("Wealth: " + state.wealth_classification())
     print("Density: " + state.density_classification())
+    print("Biggest industries:")
+    for industry in ["agriculture", "manufacturing", "professional_services", "public_sector"]:
+        if state.stats[industry].value >= 25.0:
+            print(industry.replace('_', ' ').title())
     print("Positions:")
     for issue in issues:
         print(str(issue) + ": " + str(state.get_stance(issue)))

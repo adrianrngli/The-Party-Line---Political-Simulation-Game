@@ -38,6 +38,9 @@ class PollStat:
 
     def push_away_from(self, other, factor = 0.2):
         self.add((other.value - self.value) * factor)
+
+    def add_percent(self, x):
+        self.add(self.value * x/100.0)
     
 class StatVector:
     """StatVectors represent a change in a stat. They can be applied to PollStats"""

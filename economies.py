@@ -9,16 +9,26 @@ class IndustryGrowthTracker:
         self.std = 0.75
         self.cycle = [2, 2, 1, 0, -1, -2, -1, 0, 1]
         self.growth = random.gauss(self.baseline + self.cycle[year % 9] * self.increment, self.std)
+        self.modifier = 0.0
 
     def add_effect(self, quantity):
-        self.modifier -= quantity
+        self.modifier += quantity
 
     def increment_year(self):
         self.year += 1
         self.growth = random.gauss(self.baseline + self.cycle[self.year % 9] * self.increment, self.std)
+        self.modifier = 0
 
     def get_growth(self):
-        return self.growth
+        return self.growth + self.modifier
+    
+    def apply_stance(self, stance):
+        self.increment += (stance.value - 50) / 100
+        self.increment = max(self.increment, 0.1)
+        self.std += (stance.value - 50) / 100
+        self.std = max(self.increment, 0.1)
+        for self.industry in stance.industry_effects.keys():
+            self.modifier += stance.industry_effects[self.industry]
     
 class MultipleIndustryTracker:
     def __init__(self, industries, year):
@@ -34,6 +44,10 @@ class MultipleIndustryTracker:
         self.year += 1
         for industry in self.trackers.keys():
             self.trackers[industry].increment_year()
+
+    def apply_stance(self, stance):
+        for industry in self.trackers.keys():
+            self.trackers[industry].apply_stance(stance)
     
 class EconRecord:
     def __init__(self):

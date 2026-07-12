@@ -138,11 +138,13 @@ class State(StatHolder):
             print(closest_other_stance, closest_other_stance.value, self.stats[issue.type].value, stance, stance.value)
         return approval["approve"]
     
-    def increment_year(self, president):
+    def increment_year(self, president, year):
         self.stats["presidential_approval"].subtract(2.5)
-        self.stats["economic_stance"].add((self.stats["wealth"].value - 50.0)/4)
+        self.stats["wealth"].add((self.econ_record.get_growth(year - 1) - 2) * 1.5)
+        self.stats["density"].add((self.econ_record.get_growth(year - 1) - 2))
+        self.stats["economic_stance"].add((self.stats["wealth"].value - 50.0)/10)
         if self.stats["density"].value > 50.0:
-            self.stats["social_stance"].subtract((self.stats["density"].value - 50.0)/4)
+            self.stats["social_stance"].subtract(sqrt((self.stats["density"].value - 50.0)/4))
         for axis in ["economic_stance", "foreign_stance", "social_stance"]:
             if self.stats["presidential_approval"].value >= 50.0:
                 self.stats[axis].push_toward(president.stats[axis], sqrt(self.stats["presidential_approval"].value - 50.0)/10)
@@ -154,7 +156,9 @@ class State(StatHolder):
             total_economic_change = 0.0
             for industry in ["agriculture", "manufacturing", "professional_services", "public_sector"]:
                 total_economic_change += industry_changes.get_growth(industry) * self.stats[industry].value / 100.0
+                self.stats[industry].add_percent(industry_changes.get_growth(industry))
             self.econ_record.write_entry(year, total_economic_change)
+            StatOperations.normalize([self.stats["agriculture"], self.stats["manufacturing"], self.stats["professional_services"], self.stats["public_sector"]], 100)
 
     def get_growth(self, year):
         return self.econ_record.get_growth(year)

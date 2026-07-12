@@ -1,3 +1,5 @@
+from economies import MultipleIndustryTracker
+
 class Bill:
     def __init__(self, issue, stance, proposer, year, nation):
         self.issue = issue
@@ -144,10 +146,12 @@ class Bill:
                 self.nation.parties[i].stats["popularity"].add(self.get_national_popularity() - 50)
             else:
                 self.nation.parties[i].stats["popularity"].add(50 - self.get_national_popularity())
+        if self.issue.type == "economic_stance":
+            self.nation.industry_tracker.apply_stance(self.stance)
         for state in self.nation.states:
             state.stats["presidential_approval"].add((state.law_popularity(self.issue, self.stance) - 50))
             if self.issue.type == "economic_stance" and self.stance.value < 50:
-                state.stats["wealth"].add((50-self.stance.value)/4)
+                state.stats["wealth"].add((50-self.stance.value)/10)
             elif self.issue.type == "social_stance":
                 state.stats["density"].add((state.stats["social_stance"].value-self.stance.value)/2)
 
