@@ -26,8 +26,12 @@ class Player:
                 return [presidential_hopefuls[0], presidential_hopefuls[1]]
     
     def propose_law(self, nation):
-        bill_index = random.randint(0, 3)
-        return Bill(nation.issues[bill_index], self.party.get_stance(nation.issues[bill_index]), self.party, nation.year, nation)
+        unresolved_issues = []
+        for issue in nation.issues:
+            if not issue.resolved:
+                unresolved_issues.append(issue)
+        bill_index = random.randint(0, len(unresolved_issues) - 1)
+        return Bill(unresolved_issues[bill_index], self.party.get_stance(unresolved_issues[bill_index]), self.party, nation.year, nation)
     
     def choose_bill_stance(self, bill):
         if bill.stance == self.party.get_stance(bill.issue):
@@ -91,12 +95,16 @@ class HumanPlayer(Player):
     def propose_law(self, nation):
         """Prompt the player to choose an issue and a stance, then attempt to pass a bill on it"""
         issues = nation.issues
-        for i in range(len(issues)):
-            print(str(i + 1) + ". " + str(issues[i]))
+        unresolved_issues = []
+        for issue in issues:
+            if not issue.resolved:
+                unresolved_issues.append(issue)
+        for i in range(len(unresolved_issues)):
+            print(str(i + 1) + ". " + str(unresolved_issues[i]))
         issue_choice = 0
-        while issue_choice < 1 or issue_choice > len(issues):
+        while issue_choice < 1 or issue_choice > len(unresolved_issues):
             issue_choice = int(input("Enter the number of the issue you would like to legislate on "))
-        issue = issues[issue_choice - 1]
+        issue = unresolved_issues[issue_choice - 1]
 
         stances = list(issue.stances.values())
         bills = [Bill(issue, stance, self.party, nation.year, nation) for stance in stances]

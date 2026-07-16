@@ -11,11 +11,12 @@ from math import sqrt
 
 class Nation:
     """Represents the entire nation, holding all of the states and national information"""
-    def __init__(self, parties, player_party, issues = []):
+    def __init__(self, parties, player_party, all_issues, initial_issues = []):
         self.year = 1960
         self.states = []
         self.parties = parties
-        self.issues = issues
+        self.all_issues = all_issues
+        self.issues = initial_issues
         self.in_unrest = False
         self.presidential_hopefuls = dict()
         for i in range(2):
@@ -90,7 +91,6 @@ class Nation:
                 self.house_election_results[1958] = player_party.letter + "+2"
 
         #initialize issues
-        self.all_issues = AllIssues()
         self.popularity_events = AllPopularityEvents()
 
         self.update_presidential_hopefuls()
@@ -122,6 +122,8 @@ class Nation:
                 state.governor.increment_year()
         self.update_presidential_hopefuls()
         self.industry_tracker.increment_year()
+        if self.year % 4 == 0:
+            self.update_issues()
 
         print(self.year)
         print("President:")
@@ -134,8 +136,15 @@ class Nation:
         print(f"The US economy grew by {round(self.econ_record.get_growth(self.year - 1), 1)}% last year.")
         for i in range(2):
             print(str(self.parties[i]) + " approval rating: " + str(round(self.parties[i].stats["popularity"].value, 1)) + "% approve")
-        print("Polling on issues: ")
-        self.display_polling_on_issues()
+        
+
+    def update_issues(self):
+        new_issues = []
+        for issue in self.issues:
+            if not issue.resolved:
+                new_issues.append(issue)
+        new_issues.extend(self.all_issues.generate_issues(4 - len(new_issues), self.issues))
+        self.issues = new_issues
 
     def get_senate_composition(self):
         """Returns a dictionary mapping each party to the amount of senate seats they have"""

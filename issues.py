@@ -28,6 +28,7 @@ class Issue():
         self.stances = stances
         self.min_value = min_value
         self.max_value = max_value
+        self.resolved = False
 
     def __str__(self):
         return self.name
@@ -60,5 +61,14 @@ class AllIssues:
     def new_issue(self):
         return self.issues[0]
     
-    def generate_issues(self, num):
-        return self.issues[:num]
+    def generate_issues(self, num, current_issues=[]):
+        generated_issues = []
+        issue_num = 0
+        for issue in self.issues:
+            if issue not in current_issues:
+                issue.resolved = False
+                generated_issues.append(issue)
+                issue_num += 1
+                if issue_num == num:
+                    break
+        return generated_issues

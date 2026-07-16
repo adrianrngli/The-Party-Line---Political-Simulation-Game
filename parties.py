@@ -26,7 +26,8 @@ class Party(StatHolder):
                 if platform[issue].type == axis:
                     issue_count += 1
                     average_position += platform[issue].value
-            average_position /= issue_count
+            if issue_count != 0:
+                average_position /= issue_count
             self.set_stat(axis, average_position)
 
     def get_stance(self, issue):

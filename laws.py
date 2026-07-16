@@ -154,6 +154,7 @@ class Bill:
                 state.stats["wealth"].add((50-self.stance.value)/10)
             elif self.issue.type == "social_stance":
                 state.stats["density"].add((state.stats["social_stance"].value-self.stance.value)/2)
+        self.issue.resolved = True
 
     def __str__(self):
         return "The " + str(self.stance) + " Act of " + str(self.year)

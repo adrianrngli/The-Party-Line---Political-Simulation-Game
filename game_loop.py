@@ -28,7 +28,7 @@ initial_issues = all_issues.generate_issues(4)
 initialize_players()
 for player in players:
     player.set_platform(initial_issues)
-nation = Nation([democrats, republicans], players[0].party, initial_issues)
+nation = Nation([democrats, republicans], players[0].party, all_issues, initial_issues)
 """
 elections = dict()
 for state in nation.states:
@@ -76,11 +76,10 @@ print("House composition:")
 print(nation.get_house_totals())
 for i in range(2):
     print(str(nation.parties[i]) + " approval rating: " + str(round(nation.parties[i].stats["popularity"].value, 1)) + "% approve")
-print("Polling on issues: ")
-nation.display_polling_on_issues()
 
 for i in range(60):
-    
+    print("Polling on issues: ")
+    nation.display_polling_on_issues()
     senate_elections = NationalSenateElection(nation)
     
     if not senate_elections.no_elections():
@@ -135,3 +134,6 @@ for i in range(60):
     input("Press enter to advance year ")
     print()
     nation.increment_year()
+    if nation.year % 4 == 0:
+        for player in players:
+            player.set_platform(nation.issues)
