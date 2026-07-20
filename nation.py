@@ -29,11 +29,14 @@ class Nation:
         self.industry_tracker = MultipleIndustryTracker(["agriculture", "manufacturing", "professional_services", "public_sector"], self.year)
         self.econ_record = EconRecord()
 
-        # initialize states
+        # initialize states, plus DC which participates only in presidential elections
+        self.dc = None
         with open("input_files/states_basic_info.txt") as file:
             file.readline()
-            for line in file:
-                self.states.append(State(*line.replace('\n', '').split(", ")))
+            rows = [line.replace('\n', '').split(", ") for line in file if line.strip()]
+        for row in rows[:50]:
+            self.states.append(State(*row))
+        self.dc = State(*rows[50])
         for i in range(2):
             while True:
                 rand_index = random.randint(0, 49)
@@ -44,19 +47,23 @@ class Nation:
             file.readline()
             for i in range(50):
                 self.states[i].set_political_stances(*[float(x) for x in file.readline().split()])
+            self.dc.set_political_stances(*[float(x) for x in file.readline().split()])
         with open("input_files/states_industries.txt") as file:
             file.readline()
             for i in range(50):
                 self.states[i].set_industries(*[float(x) for x in file.readline().split()])
+            self.dc.set_industries(*[float(x) for x in file.readline().split()])
         with open("input_files/states_wealths.txt") as file:
             file.readline()
             for i in range(50):
                 self.states[i].set_stat("wealth", float(file.readline()))
+            self.dc.set_stat("wealth", float(file.readline()))
         with open("input_files/states_densities.txt") as file:
             file.readline()
             for i in range(50):
                 self.states[i].set_stat("density", float(file.readline()))
-        for state in self.states:
+            self.dc.set_stat("density", float(file.readline()))
+        for state in self.states + [self.dc]:
             state.gaussian_noisify_all_stats()
 
         #initialize senators
@@ -95,12 +102,17 @@ class Nation:
 
         self.update_presidential_hopefuls()
 
+    def presidential_states(self):
+        """The 50 states plus DC. DC casts electoral votes but has no seats in Congress,
+        so it participates in presidential elections only."""
+        return self.states + [self.dc]
+
     def increment_year(self):
         """Updates all information in the nation when the year advances"""
         self.year += 1
         if self.year % 4 == 1:
             self.presidential_scandal = False
-        for state in self.states:
+        for state in self.presidential_states():
             state.increment_year(self.president, self.year)
         self.president.calculate_popularity(self.states)
         self.president.party.stats["popularity"].push_toward(self.president.stats["popularity"], 0.1)
@@ -231,6 +243,11 @@ class Nation:
                 state.governor.run_random_event(self.popularity_events)
             if state.largest_city.mayor != None:
                 state.largest_city.mayor.run_random_event(self.popularity_events)
+        # DC has no senators/governor to poll, but its approval and economy must stay
+        # current for the presidential election contests that read them.
+        self.dc.stats["presidential_approval"].subtract(2.5)
+        self.dc.update_economy(self.industry_tracker, self.year)
+        self.dc.stats["presidential_approval"].add((self.dc.econ_record.get_growth(self.year) - 2.0) * 1.5)
         president_event = self.president.run_random_event(self.popularity_events, self.states)
         if president_event != None and type(president_event) == Scandal:
             self.presidential_scandal = True

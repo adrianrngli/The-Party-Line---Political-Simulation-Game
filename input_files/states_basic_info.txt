@@ -49,3 +49,4 @@ Washington, WA, Pacific West, 7, Seattle
 West Virginia, WV, Mid-Atlantic, 6, Huntington
 Wisconsin, WI, Midwest, 10, Milwaukee
 Wyoming, WY, Rocky Mountains, 1, Cheyenne
+District of Columbia, DC, Mid-Atlantic, 1, Washington

@@ -472,13 +472,13 @@ class NationalPresidentialElection(Election):
         for candidate in candidates:
             self.electoral_vote[candidate] = 0
             self.proportional_vote[candidate] = 0.0
-        for state in nation.states:
+        for state in nation.presidential_states():
             self.elections[state.abbreviation] = StatePresidentialElection(state, nation, candidates, running_mates)
         self.running_mates = running_mates
 
     def run_election(self):
         total_vote_count = 0.0
-        for state in self.nation.states:
+        for state in self.nation.presidential_states():
             state_results = self.elections[state.abbreviation].run_election()
             state_winner = self.candidates[0]
             for candidate in self.candidates:

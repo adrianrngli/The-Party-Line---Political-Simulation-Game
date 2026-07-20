@@ -49,3 +49,4 @@ agriculture, manufacturing, professional services, public sector
 30 50 5 15
 35 35 20 10
 75 10 5 10
+2 8 40 50
