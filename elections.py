@@ -431,13 +431,13 @@ class NationalSenateElection(Election):
         """Displays the polling for every election"""
         for state in self.nation.states:
             for election in self.elections[state.abbreviation]:
-                print(election.get_polling())
-                
+                self.nation.interface.announce(election.get_polling())
+
     def run_elections(self):
         """Runs every senate election in the current year, implements the results, and then prints the outcome"""
         for state in self.nation.states:
             for election in self.elections[state.abbreviation]:
-                print(election.run_election())
+                self.nation.interface.announce(election.run_election())
         new_leader = None
         outcome_string = ""
         self.points = self.nation.get_senate_composition()
@@ -451,7 +451,7 @@ class NationalSenateElection(Election):
             if self.points[self.nation.parties[i]] > self.initial_seats[self.nation.parties[i]]:
                 change_string = self.nation.parties[i].letter + "+" + str(self.points[self.nation.parties[i]] 
                                                                           - self.initial_seats[self.nation.parties[i]])
-        print(outcome_string + " (" + change_string + ")")
+        self.nation.interface.announce(outcome_string + " (" + change_string + ")")
 
     def no_elections(self):
         for state in self.nation.states:
@@ -487,8 +487,8 @@ class NationalPresidentialElection(Election):
                 if state_results[candidate] > state_results[state_winner]:
                     state_winner = candidate
             self.electoral_vote[state_winner] += state.rep_number + 2
-            print(state.abbreviation + " (" + str(state.rep_number + 2) + " votes)")
-            print(self.elections[state.abbreviation].get_results())
+            self.nation.interface.announce(state.abbreviation + " (" + str(state.rep_number + 2) + " votes)")
+            self.nation.interface.announce(self.elections[state.abbreviation].get_results())
         electoral_vote_string = ""
         popular_vote_string = ""
         
@@ -498,10 +498,10 @@ class NationalPresidentialElection(Election):
             if i != len(self.candidates) - 1:
                 electoral_vote_string += " "
                 popular_vote_string += " "
-        print("Electoral vote:")
-        print(electoral_vote_string)
-        print("Popular Vote:")
-        print(popular_vote_string)
+        self.nation.interface.announce("Electoral vote:")
+        self.nation.interface.announce(electoral_vote_string)
+        self.nation.interface.announce("Popular Vote:")
+        self.nation.interface.announce(popular_vote_string)
         self.implement_results()
 
     def implement_results(self):
@@ -544,4 +544,4 @@ class NationalHouseElection(Election):
                 change_string = self.nation.parties[i].letter + "+" + str(self.points[self.nation.parties[i]] 
                                                                           - self.initial_seats[self.nation.parties[i]])
         self.nation.house_election_results[self.nation.year] = change_string
-        print(outcome_string + " (" + change_string + ")")
+        self.nation.interface.announce(outcome_string + " (" + change_string + ")")

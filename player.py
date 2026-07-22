@@ -1,15 +1,15 @@
 from parties import Party
-from display_objects import display_person, display_state
 from laws import Bill
 import random
 
 class Player:
-    def __init__(self, party):
+    def __init__(self, party, interface=None):
         self.party = party
+        self.interface = interface
 
     def edit_senate_elections(self, elections):
         return
-    
+
     def choose_presidential_ticket(self, nation):
         presidential_hopefuls = nation.presidential_hopefuls[self.party].copy()
         if nation.president in presidential_hopefuls:
@@ -24,7 +24,7 @@ class Player:
                 return [presidential_hopefuls[0], presidential_hopefuls[1]]
             else:
                 return [presidential_hopefuls[0], presidential_hopefuls[1]]
-    
+
     def propose_law(self, nation):
         unresolved_issues = []
         for issue in nation.issues:
@@ -32,7 +32,7 @@ class Player:
                 unresolved_issues.append(issue)
         bill_index = random.randint(0, len(unresolved_issues) - 1)
         return Bill(unresolved_issues[bill_index], self.party.get_stance(unresolved_issues[bill_index]), self.party, nation.year, nation)
-    
+
     def choose_bill_stance(self, bill):
         if bill.stance == self.party.get_stance(bill.issue):
             bill.set_party_vote(self.party, "Yea")
@@ -40,99 +40,113 @@ class Player:
             bill.set_party_vote(self.party, "Nay")
 
 class HumanPlayer(Player):
-    def __init__(self, party):
-        super().__init__(party)
+    """A player driven by a human, via the supplied GameInterface.
+
+    Each method decides *which* options are available (applying the game's
+    rules and constraints) and hands them to the interface to present and
+    resolve. No console I/O happens here, so any frontend that implements
+    GameInterface can drive a human player.
+    """
+
+    def __init__(self, party, interface):
+        super().__init__(party, interface)
 
     def edit_senate_elections(self, senate_election):
-        """Menu for the player to choose their candidates in senate elections"""
-        if not senate_election.no_elections():
-            while True:
-                state_input = input("Type in the abbreviation of a state to view election details or Q to quit ")
-                if state_input.upper() == "Q":
-                    return
-                if state_input.upper() in senate_election.elections.keys():
-                    for election in senate_election.elections[state_input]:
-                        self.choose_senate_candidates(election)
+        """Let the player browse states with senate races and nominate candidates."""
+        if senate_election.no_elections():
+            return
+        while True:
+            states_with_races = [abbreviation
+                                 for abbreviation, elections in senate_election.elections.items()
+                                 if elections]
+            state_choice = self.interface.select(
+                "Type the number of a state to view its election details, or quit",
+                states_with_races,
+                allow_quit=True,
+            )
+            if state_choice is None:
+                return
+            for election in senate_election.elections[state_choice]:
+                self.choose_senate_candidates(election)
 
     def choose_senate_candidates(self, election):
-        print(election)
-        print()
-        display_state(election.state, election.nation.issues)
+        issues = election.nation.issues
+        self.interface.announce(str(election))
+        self.interface.announce()
+        self.interface.show_state(election.state, issues)
         for candidate in election.general_candidates:
-            display_person(candidate, election.nation.issues)
-        for i in range (len(election.primary_candidates[self.party])):
-            print(i+1)
-            display_person(election.primary_candidates[self.party][i], election.nation.issues)
-        candidate_number = int(input("Enter the number of the candidate you would like to nominate "))
-        election.nominate_candidate(election.primary_candidates[self.party][candidate_number - 1])
+            self.interface.show_person(candidate, issues)
+        nominee = self.interface.select(
+            "Enter the number of the candidate you would like to nominate",
+            election.primary_candidates[self.party],
+            details=lambda ui, candidate: ui.show_person(candidate, issues),
+        )
+        election.nominate_candidate(nominee)
 
     def choose_presidential_ticket(self, nation):
-        for i in range(len(nation.presidential_hopefuls[self.party])):
-            print(i + 1)
-            display_person(nation.presidential_hopefuls[self.party][i], nation.issues)
-        nominee_index = -1
-        running_mate_index = -1
-        while nominee_index == running_mate_index:
-            nominee_index = int(input("Enter the number of the candidate you would like to nominate for president "))
-            running_mate_index = int(input("Enter the number of the candidate you would like to nominate for vice president "))
-        nation.presidential_hopefuls[self.party][nominee_index-1].set_stat("fame", 100)
-        return [nation.presidential_hopefuls[self.party][nominee_index-1], nation.presidential_hopefuls[self.party][running_mate_index-1]]
+        hopefuls = nation.presidential_hopefuls[self.party]
+        nominee = self.interface.select(
+            "Enter the number of the candidate you would like to nominate for president",
+            hopefuls,
+            details=lambda ui, candidate: ui.show_person(candidate, nation.issues),
+        )
+        nominee.set_stat("fame", 100)
+        running_mate = self.interface.select(
+            "Enter the number of the candidate you would like to nominate for vice president",
+            [hopeful for hopeful in hopefuls if hopeful != nominee],
+            details=lambda ui, candidate: ui.show_person(candidate, nation.issues),
+        )
+        return [nominee, running_mate]
 
     def set_platform(self, issues):
         """Prompt the player to choose their party's stance on each issue"""
         platform = dict()
         for issue in issues:
-            print("Issue: " + str(issue))
+            self.interface.announce("Issue: " + str(issue))
             stances = list(issue.stances.values())
-            for i in range(len(stances)):
-                print(str(i + 1) + ". " + str(stances[i]))
-            choice = 0
-            while choice < 1 or choice > len(stances):
-                choice = int(input("Enter the number of your party's position on this issue "))
-            platform[issue] = stances[choice - 1]
+            platform[issue] = self.interface.select(
+                "Enter the number of your party's position on this issue",
+                stances,
+            )
         self.party.set_platform(platform)
 
     def propose_law(self, nation):
         """Prompt the player to choose an issue and a stance, then attempt to pass a bill on it"""
-        issues = nation.issues
-        unresolved_issues = []
-        for issue in issues:
-            if not issue.resolved:
-                unresolved_issues.append(issue)
-        for i in range(len(unresolved_issues)):
-            print(str(i + 1) + ". " + str(unresolved_issues[i]))
-        issue_choice = 0
-        while issue_choice < 1 or issue_choice > len(unresolved_issues):
-            issue_choice = int(input("Enter the number of the issue you would like to legislate on "))
-        issue = unresolved_issues[issue_choice - 1]
+        unresolved_issues = [issue for issue in nation.issues if not issue.resolved]
+        issue = self.interface.select(
+            "Enter the number of the issue you would like to legislate on",
+            unresolved_issues,
+        )
 
         stances = list(issue.stances.values())
         bills = [Bill(issue, stance, self.party, nation.year, nation) for stance in stances]
-        for i in range(len(bills)):
-            bill_string = str(i+1) + " " + str(bills[i].stance)
-            bill_string += ": " + str(bills[i].get_house_party_votes(self.party)) + " House " + self.party.name + " votes, "
-            bill_string += str(bills[i].get_senate_party_votes(self.party)) + " Senate " + self.party.name + " votes, "
-            if bills[i].get_presidential_approval() == "Pass":
-                bill_string += " President approves"
+
+        def bill_label(bill):
+            label = str(bill.stance)
+            label += ": " + str(bill.get_house_party_votes(self.party)) + " House " + self.party.name + " votes, "
+            label += str(bill.get_senate_party_votes(self.party)) + " Senate " + self.party.name + " votes, "
+            if bill.get_presidential_approval() == "Pass":
+                label += " President approves"
             else:
-                bill_string += " President disapproves"
-            print(bill_string)
-        bill_choice = 0
-        while bill_choice < 1 or bill_choice > len(bills):
-            bill_choice = int(input("Enter the number of the stance your law will take "))
-        bill = bills[bill_choice - 1]
-        return bill
+                label += " President disapproves"
+            return label
+
+        return self.interface.select(
+            "Enter the number of the stance your law will take",
+            bills,
+            labeler=bill_label,
+        )
 
     def choose_bill_stance(self, bill):
-        player_vote = input("The " + str(bill.proposer) + " is proposing " + str(bill) + ". Will you instruct your party to vote Yea or Nay? ")
-        if player_vote[0].upper() == 'Y':
+        prompt = "The " + str(bill.proposer) + " is proposing " + str(bill) + ". Will you instruct your party to vote Yea or Nay?"
+        if self.interface.confirm(prompt):
             bill.set_party_vote(self.party, "Yea")
         else:
             bill.set_party_vote(self.party, "Nay")
 
 class CPUPlayer(Player):
-    def __init__(self, party):
-        super().__init__(party)
+    def __init__(self, party, interface=None):
+        super().__init__(party, interface)
 
     def set_platform(self, issues):
         platform = dict()

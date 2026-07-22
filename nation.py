@@ -11,8 +11,9 @@ from math import sqrt
 
 class Nation:
     """Represents the entire nation, holding all of the states and national information"""
-    def __init__(self, parties, player_party, all_issues, initial_issues = []):
+    def __init__(self, parties, player_party, all_issues, initial_issues = [], interface=None):
         self.year = 1960
+        self.interface = interface
         self.states = []
         self.parties = parties
         self.all_issues = all_issues
@@ -127,7 +128,7 @@ class Nation:
         for state in self.states:
             for sen in state.senators:
                 if sen != None:
-                    sen.increment_year(self.year, self.president)
+                    sen.increment_year(self.year, self.president, self.interface)
                     if sen.retired:
                         state.replace_senator(sen, Senator(sen.party, state, sen.election_year))
             if state.governor != None:
@@ -137,17 +138,17 @@ class Nation:
         if self.year % 4 == 0:
             self.update_issues()
 
-        print(self.year)
-        print("President:")
-        print(self.president)
-        print("Presidential approval rating: " + str(round(self.president.stats["popularity"].value, 1)) + "% approve")
-        print("Senate composition:")
-        print(self.get_senate_totals())
-        print("House composition:")
-        print(self.get_house_totals())
-        print(f"The US economy grew by {round(self.econ_record.get_growth(self.year - 1), 1)}% last year.")
+        self.interface.announce(str(self.year))
+        self.interface.announce("President:")
+        self.interface.announce(str(self.president))
+        self.interface.announce("Presidential approval rating: " + str(round(self.president.stats["popularity"].value, 1)) + "% approve")
+        self.interface.announce("Senate composition:")
+        self.interface.announce(self.get_senate_totals())
+        self.interface.announce("House composition:")
+        self.interface.announce(self.get_house_totals())
+        self.interface.announce(f"The US economy grew by {round(self.econ_record.get_growth(self.year - 1), 1)}% last year.")
         for i in range(2):
-            print(str(self.parties[i]) + " approval rating: " + str(round(self.parties[i].stats["popularity"].value, 1)) + "% approve")
+            self.interface.announce(str(self.parties[i]) + " approval rating: " + str(round(self.parties[i].stats["popularity"].value, 1)) + "% approve")
         
 
     def update_issues(self):
@@ -223,11 +224,11 @@ class Nation:
     def display_polling_on_issues(self):
         for issue in self.issues:
             poll = self.get_polling_on_issue(issue)
-            print(issue)
+            self.interface.announce(str(issue))
             poll_string = ""
             for stance in issue.stances.keys():
                 poll_string += str(stance) + " " + str(round(poll[stance], 1)) + "% "
-            print(poll_string)
+            self.interface.announce(poll_string)
 
     def record_law(self, law):
         self.laws_passed[self.year] = law
@@ -238,20 +239,20 @@ class Nation:
             state.update_economy(self.industry_tracker, self.year)
             state.stats["presidential_approval"].add((state.econ_record.get_growth(self.year) - 2.0) * 1.5)
             for sen in state.senators:
-                sen.run_random_event(self.popularity_events)
+                sen.run_random_event(self.popularity_events, self.interface)
             if state.governor != None:
-                state.governor.run_random_event(self.popularity_events)
+                state.governor.run_random_event(self.popularity_events, self.interface)
             if state.largest_city.mayor != None:
-                state.largest_city.mayor.run_random_event(self.popularity_events)
+                state.largest_city.mayor.run_random_event(self.popularity_events, self.interface)
         # DC has no senators/governor to poll, but its approval and economy must stay
         # current for the presidential election contests that read them.
         self.dc.stats["presidential_approval"].subtract(2.5)
         self.dc.update_economy(self.industry_tracker, self.year)
         self.dc.stats["presidential_approval"].add((self.dc.econ_record.get_growth(self.year) - 2.0) * 1.5)
-        president_event = self.president.run_random_event(self.popularity_events, self.states)
+        president_event = self.president.run_random_event(self.popularity_events, self.states, self.interface)
         if president_event != None and type(president_event) == Scandal:
             self.presidential_scandal = True
-        self.vice_president.run_random_event(self.popularity_events)
+        self.vice_president.run_random_event(self.popularity_events, self.interface)
         if self.year not in self.laws_passed.keys() or self.laws_passed[self.year] == None:
             self.laws_passed[self.year] = None
             house_majority_party = self.get_house_majority_party()
@@ -275,14 +276,14 @@ class Nation:
                     party.stats["popularity"].subtract(sqrt(self.president.stats["popularity"].value - 50)/5)
                 else:
                     party.stats["popularity"].add(sqrt(50 - self.president.stats["popularity"].value)/5)
-        print("Presidential approval rating: " + str(round(self.president.stats["popularity"].value, 1)) + "%")
+        self.interface.announce("Presidential approval rating: " + str(round(self.president.stats["popularity"].value, 1)) + "%")
         for i in range(2):
-            print(str(self.parties[i]) + " approval rating: " + str(round(self.parties[i].stats["popularity"].value, 1)) + "% approve")
+            self.interface.announce(str(self.parties[i]) + " approval rating: " + str(round(self.parties[i].stats["popularity"].value, 1)) + "% approve")
         if self.laws_passed[self.year] != None:
-            print(str(self.laws_passed[self.year]) + " approval rating: " + str(round(self.laws_passed[self.year].get_national_popularity(), 1)) + "%")
+            self.interface.announce(str(self.laws_passed[self.year]) + " approval rating: " + str(round(self.laws_passed[self.year].get_national_popularity(), 1)) + "%")
         if self.econ_record.get_growth(self.year) < 0.0:
-            print("The US has entered a recession!")
-        print(economic_forecast(self.econ_record.get_growth(self.year)))
+            self.interface.announce("The US has entered a recession!")
+        self.interface.announce(economic_forecast(self.econ_record.get_growth(self.year)))
 
     def calculate_economic_growth(self):
         total_national_growth = 0.0

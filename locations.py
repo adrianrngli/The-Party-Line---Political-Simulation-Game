@@ -134,8 +134,6 @@ class State(StatHolder):
         for option in ["approve", "disapprove"]:
             approval[option] *= 100
             approval[option] /= total_vote
-        if approval["approve"] == 50.0:
-            print(closest_other_stance, closest_other_stance.value, self.stats[issue.type].value, stance, stance.value)
         return approval["approve"]
     
     def increment_year(self, president, year):

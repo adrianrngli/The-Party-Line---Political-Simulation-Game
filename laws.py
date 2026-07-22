@@ -67,11 +67,11 @@ class Bill:
     def run_house_vote(self):
         house_composition = self.nation.get_house_composition()
         for i in range(2):
-            print(self.nation.parties[i].letter + " Yea: " + str(self.get_house_party_votes(self.nation.parties[i])))
-            print(self.nation.parties[i].letter + " Nay: " + str(house_composition[self.nation.parties[i]] - self.house_tally[self.nation.parties[i]]))
+            self.nation.interface.announce(self.nation.parties[i].letter + " Yea: " + str(self.get_house_party_votes(self.nation.parties[i])))
+            self.nation.interface.announce(self.nation.parties[i].letter + " Nay: " + str(house_composition[self.nation.parties[i]] - self.house_tally[self.nation.parties[i]]))
         yeas = self.house_tally[self.nation.parties[0]] + self.house_tally[self.nation.parties[1]]
-        print(str(yeas) + " Yeas")
-        print(str(435-yeas) + " Nays")
+        self.nation.interface.announce(str(yeas) + " Yeas")
+        self.nation.interface.announce(str(435-yeas) + " Nays")
         if yeas > 217:
             return True
         else:
@@ -91,14 +91,14 @@ class Bill:
             return False
         for state in self.nation.states:
             for sen in state.senators:
-                print(str(sen) + " " + self.senate_votes[sen])
+                self.nation.interface.announce(str(sen) + " " + self.senate_votes[sen])
         if self.senate_composition[self.nation.parties[0]] + self.senate_composition[self.nation.parties[1]] > 100:
-            print(str(self.nation.vice_president) + " " + self.party_votes[self.nation.president.party])
+            self.nation.interface.announce(str(self.nation.vice_president) + " " + self.party_votes[self.nation.president.party])
         for i in range(2):
-            print(self.nation.parties[i].letter + " Yea: " + str(party_tallies[self.nation.parties[i]]))
-            print(self.nation.parties[i].letter + " Nay: " + str(self.senate_composition[self.nation.parties[i]] - party_tallies[self.nation.parties[i]]))
-       
-        print(str(yeas) + " yeas " + str(nays) + " nays")
+            self.nation.interface.announce(self.nation.parties[i].letter + " Yea: " + str(party_tallies[self.nation.parties[i]]))
+            self.nation.interface.announce(self.nation.parties[i].letter + " Nay: " + str(self.senate_composition[self.nation.parties[i]] - party_tallies[self.nation.parties[i]]))
+
+        self.nation.interface.announce(str(yeas) + " yeas " + str(nays) + " nays")
         if yeas > 50:
             return True
         else:
@@ -125,10 +125,10 @@ class Bill:
         if self.run_house_vote():
             if self.run_senate_vote():
                 if self.get_presidential_approval() == "Pass":
-                    print(str(self.nation.president) + " signed " + str(self) + " into law!")
+                    self.nation.interface.announce(str(self.nation.president) + " signed " + str(self) + " into law!")
                     return "Passed"
                 elif self.get_senate_vote() > 66:
-                    print(str(self.nation.president) + " reluctantly signed " + str(self) + " into law!")
+                    self.nation.interface.announce(str(self.nation.president) + " reluctantly signed " + str(self) + " into law!")
                     return "Passed"
                 else:
                     return "Vetoed"

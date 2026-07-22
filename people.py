@@ -116,19 +116,19 @@ class Politician(StatHolder):
         else:
             return "pants on fire"
         
-    def run_random_event(self, events):
+    def run_random_event(self, events, interface):
         random_seed = random.random() * 500
         if random_seed < sqrt(self.stats["corruptness"].value/max(self.years_of_experience, 1)):
             scandal = events.random_scandal()
             scandal.apply(self)
-            print(scandal.generate_headline(self))
+            interface.announce(scandal.generate_headline(self))
             return scandal
         random_seed = random.random() * 500
         if random_seed < sqrt(100 - self.stats["charisma"].value):
             gaffe = events.random_gaffe()
             gaffe.apply(self)
-            print(gaffe.generate_headline(self))
-            return gaffe 
+            interface.announce(gaffe.generate_headline(self))
+            return gaffe
     
 class Representative(Politician):
     """Represents a House Representative. Representatives vote on laws."""
@@ -147,16 +147,16 @@ class Senator(Politician):
         if (self.age < 30):
             self.age = random.randint(30, 85)
 
-    def consider_retirement(self, current_year: int):
+    def consider_retirement(self, current_year: int, interface):
         # when senators reach age 65 they get a 25% chance to not run for reelection. This chance increases by 4% for each year age increases
         if self.age >= 65 and current_year % 6 == self.election_year:
             retirement_chance = min(25+4*(self.age-65), 90)
             rand_num = random.randint(1, 100)
             if (rand_num <= retirement_chance):
-                print(str(self)+" has announced retirement at the age of " + str(self.age)+ " at the end of this term, and will not be running for reelection.")
+                interface.announce(str(self)+" has announced retirement at the age of " + str(self.age)+ " at the end of this term, and will not be running for reelection.")
                 self.set_to_retire = True
 
-    def increment_year(self, year, president):
+    def increment_year(self, year, president, interface):
         """Updates age and years of experience for the senator. Additionally, if the senator is 65 and up for election they have a chance to announce retirement"""
         super().increment_year()
         for axis in ["economic_stance", "foreign_stance", "social_stance"]:
@@ -167,7 +167,7 @@ class Senator(Politician):
         if self.set_to_retire:
             self.retire()
         else:
-            self.consider_retirement(year)
+            self.consider_retirement(year, interface)
 
     def retire(self):
         super().retire()
@@ -258,19 +258,19 @@ class President(Politician):
         self.set_stat("popularity", average_popularity)
         return self.stats["popularity"].value
     
-    def run_random_event(self, events, states):
+    def run_random_event(self, events, states, interface):
         random_seed = random.random() * 100
         if random_seed < self.stats["corruptness"].value/max(self.years_of_experience, 1):
             scandal = events.random_scandal()
             scandal.apply_to_president(states)
-            print(scandal.generate_headline(self))
+            interface.announce(scandal.generate_headline(self))
             return scandal
         random_seed = random.random() * 100
         if random_seed < 100 - self.stats["charisma"].value:
             gaffe = events.random_gaffe()
             gaffe.apply_to_president(states)
-            print(gaffe.generate_headline(self))
-            return gaffe 
+            interface.announce(gaffe.generate_headline(self))
+            return gaffe
     
 class VicePresident(Politician):
     def __init__(self, party, state):
