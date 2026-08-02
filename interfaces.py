@@ -51,9 +51,28 @@ class GameInterface:
             bar = "#" * filled + "-" * (20 - filled)
             self.announce("  " + str(label) + "  " + bar + " " + str(round(percent, 1)) + "%")
 
+    def pick_state(self, prompt, state_abbrevs, allow_quit=True, info=None):
+        """Choose one of the given states (by abbreviation), or None if the
+        player quits. `info` optionally maps each abbreviation to a line of
+        detail (e.g. race polling) a map frontend can surface on hover. Default:
+        a plain list via select(); a map frontend can override this."""
+        return self.select(prompt, list(state_abbrevs), allow_quit=allow_quit)
+
     def set_context(self, **fields):
-        """Receive current game context (year, president, party, ...) for a
-        persistent status display. No-op by default; a GUI can render it."""
+        """Receive current game context (year, president, party, nation, ...)
+        for persistent status/panel displays. No-op by default; a GUI uses it."""
+        pass
+
+    def set_map_colors(self, party_by_state=None):
+        """Color the map by election result: a dict of {state abbreviation ->
+        party letter}. Pass None to reset to the neutral default. No-op by
+        default; a map frontend uses it while showing results."""
+        pass
+
+    def set_state_results(self, results_by_state=None):
+        """Attach per-state election result text: a dict of {state abbreviation
+        -> list of lines}. Shown in a state's info panel while results are up.
+        Pass None to clear. No-op by default; a map frontend uses it."""
         pass
 
     @staticmethod

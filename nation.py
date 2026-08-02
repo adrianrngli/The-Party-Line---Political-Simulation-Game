@@ -109,8 +109,8 @@ class Nation:
         """Push the current year/president/player-party to the interface for
         display in a persistent status area (a no-op on text frontends)."""
         if self.interface is not None:
-            self.interface.set_context(year=self.year, president=self.president,
-                                       party=self.player_party)
+            self.interface.set_context(nation=self, year=self.year,
+                                       president=self.president, party=self.player_party)
 
     def presidential_states(self):
         """The 50 states plus DC. DC casts electoral votes but has no seats in Congress,

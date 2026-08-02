@@ -59,10 +59,12 @@ class HumanPlayer(Player):
             states_with_races = [abbreviation
                                  for abbreviation, elections in senate_election.elections.items()
                                  if elections]
-            state_choice = self.interface.select(
-                "Type the number of a state to view its election details, or quit",
+            state_polling = senate_election.get_polling_by_state()
+            state_choice = self.interface.pick_state(
+                "Hover a highlighted race state to see its polling; open one to inspect it or choose a candidate, or quit",
                 states_with_races,
                 allow_quit=True,
+                info=state_polling,
             )
             if state_choice is None:
                 return

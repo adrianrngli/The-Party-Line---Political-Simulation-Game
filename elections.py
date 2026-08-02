@@ -419,6 +419,8 @@ class NationalSenateElection(Election):
         for state in nation.states:
             self.elections[state.abbreviation] = []
         self.initial_seats = nation.get_senate_composition()
+        self.result_colors = dict()  # abbrev -> winning party letter, for the map
+        self.state_results = dict()  # abbrev -> [result lines], for the state panel
         for i in range(2):
             self.points[nation.parties[i]] = 0
         self.initial_leader = self.nation.get_senate_majority_party()
@@ -433,11 +435,23 @@ class NationalSenateElection(Election):
             for election in self.elections[state.abbreviation]:
                 self.nation.interface.announce(election.get_polling())
 
+    def get_polling_by_state(self):
+        """Return {state abbreviation -> polling string} for each race, for a
+        frontend to surface while the player browses the map."""
+        polling = dict()
+        for state in self.nation.states:
+            for election in self.elections[state.abbreviation]:
+                polling[state.abbreviation] = election.get_polling()
+        return polling
+
     def run_elections(self):
         """Runs every senate election in the current year, implements the results, and then prints the outcome"""
         for state in self.nation.states:
             for election in self.elections[state.abbreviation]:
-                self.nation.interface.announce(election.run_election())
+                results = election.run_election()
+                self.nation.interface.announce(results)
+                self.result_colors[state.abbreviation] = election.winner.party.letter
+                self.state_results.setdefault(state.abbreviation, []).append(results)
         new_leader = None
         outcome_string = ""
         self.points = self.nation.get_senate_composition()
@@ -469,6 +483,8 @@ class NationalPresidentialElection(Election):
         self.candidates = candidates
         self.electoral_vote = dict()
         self.proportional_vote = dict()
+        self.result_colors = dict()  # abbrev -> winning party letter, for the map
+        self.state_results = dict()  # abbrev -> [result lines], for the state panel
         for candidate in candidates:
             self.electoral_vote[candidate] = 0
             self.proportional_vote[candidate] = 0.0
@@ -486,7 +502,11 @@ class NationalPresidentialElection(Election):
                 total_vote_count += state_results[candidate] * state.rep_number
                 if state_results[candidate] > state_results[state_winner]:
                     state_winner = candidate
+            self.result_colors[state.abbreviation] = state_winner.party.letter
             self.electoral_vote[state_winner] += state.rep_number + 2
+            self.state_results[state.abbreviation] = [
+                self.elections[state.abbreviation].get_results(),
+                str(state.rep_number + 2) + " electoral votes -> " + state_winner.party.letter]
             self.nation.interface.announce(state.abbreviation + " (" + str(state.rep_number + 2) + " votes)")
             self.nation.interface.announce(self.elections[state.abbreviation].get_results())
         electoral_vote_string = ""
@@ -523,13 +543,32 @@ class NationalHouseElection(Election):
         super().__init__(nation)
         self.initial_seats = nation.get_house_composition()
         self.initial_leader = nation.get_house_majority_party()
+        self.result_colors = dict()  # abbrev -> party that gained seats, for the map
+        self.state_results = dict()  # abbrev -> [result lines], for the state panel
         self.elections = dict()
         for state in nation.states:
             self.elections[state.abbreviation] = StateHouseElection(state, nation)
 
     def run_elections(self):
+        p0, p1 = self.nation.parties
         for state in self.nation.states:
+            before0, before1 = state.rep_composition[p0], state.rep_composition[p1]
             self.elections[state.abbreviation].run_election()
+            after0, after1 = state.rep_composition[p0], state.rep_composition[p1]
+            gain0, gain1 = after0 - before0, after1 - before1
+            # Color the state by whichever party gained seats (a swing map);
+            # states with no net change stay neutral. Report the change compactly,
+            # with the resulting seat composition underneath.
+            if gain0 > 0:
+                self.result_colors[state.abbreviation] = p0.letter
+                change = p0.letter + "+" + str(gain0)
+            elif gain1 > 0:
+                self.result_colors[state.abbreviation] = p1.letter
+                change = p1.letter + "+" + str(gain1)
+            else:
+                change = "No change"
+            composition = p0.letter + " " + str(after0) + ", " + p1.letter + " " + str(after1)
+            self.state_results[state.abbreviation] = [change, composition]
         new_leader = None
         outcome_string = ""
         self.points = self.nation.get_house_composition()

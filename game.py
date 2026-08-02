@@ -123,21 +123,38 @@ class Game:
 
     def election_results_phase(self):
         """Run whichever elections were set up this year, in the original order:
-        president first, then senate, then house."""
+        president first, then senate, then house. After each, the map is colored
+        by the result for a viewing pause, then reset to neutral."""
+        ui = self.interface
         if self.nation.year % 4 == 0:
-            self.interface.pause("Press enter to run the presidential election. ")
+            ui.pause("Press enter to run the presidential election. ")
             self.presidential_election.run_election()
-            self.interface.announce()
+            ui.set_map_colors(self.presidential_election.result_colors)
+            ui.set_state_results(self.presidential_election.state_results)
+            ui.pause("Presidential results: click a state to see its result. ")
+            ui.set_map_colors(None)
+            ui.set_state_results(None)
+            ui.announce()
         if not self.senate_elections.no_elections():
-            self.interface.pause("Press enter to run senate elections. ")
+            ui.pause("Press enter to run senate elections. ")
             self.senate_elections.run_elections()
-            self.interface.announce(self.nation.get_senate_totals())
-            self.interface.announce()
+            ui.announce(self.nation.get_senate_totals())
+            ui.set_map_colors(self.senate_elections.result_colors)
+            ui.set_state_results(self.senate_elections.state_results)
+            ui.pause("Senate results: click a state with a race to see its result. ")
+            ui.set_map_colors(None)
+            ui.set_state_results(None)
+            ui.announce()
             if self.nation.year % 2 == 0:
-                self.interface.pause("Press enter to run house elections. ")
+                ui.pause("Press enter to run house elections. ")
                 self.house_elections.run_elections()
-                self.interface.announce(self.nation.get_house_totals())
-                self.interface.announce()
+                ui.announce(self.nation.get_house_totals())
+                ui.set_map_colors(self.house_elections.result_colors)
+                ui.set_state_results(self.house_elections.state_results)
+                ui.pause("House results: states colored where a party gained seats; click one for details. ")
+                ui.set_map_colors(None)
+                ui.set_state_results(None)
+                ui.announce()
 
     # --- reporting --------------------------------------------------------
 
