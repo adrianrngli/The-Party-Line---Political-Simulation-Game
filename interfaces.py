@@ -39,6 +39,27 @@ class GameInterface:
         """Render a state's full profile."""
         raise NotImplementedError
 
+    def show_poll(self, title, results):
+        """Render poll results, a sequence of (label, percentage) pairs.
+
+        Default: an ASCII bar per option, built on announce(). Graphical
+        frontends may override with real bars.
+        """
+        self.announce(title)
+        for label, percent in results:
+            filled = int(round(self._clamp_percent(percent) / 100.0 * 20))
+            bar = "#" * filled + "-" * (20 - filled)
+            self.announce("  " + str(label) + "  " + bar + " " + str(round(percent, 1)) + "%")
+
+    def set_context(self, **fields):
+        """Receive current game context (year, president, party, ...) for a
+        persistent status display. No-op by default; a GUI can render it."""
+        pass
+
+    @staticmethod
+    def _clamp_percent(value):
+        return max(0.0, min(100.0, value))
+
 
 class ConsoleInterface(GameInterface):
     """Text frontend: reproduces the game's original console behavior."""

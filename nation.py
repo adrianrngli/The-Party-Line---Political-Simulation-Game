@@ -14,6 +14,7 @@ class Nation:
     def __init__(self, parties, player_party, all_issues, initial_issues = [], interface=None):
         self.year = 1960
         self.interface = interface
+        self.player_party = player_party
         self.states = []
         self.parties = parties
         self.all_issues = all_issues
@@ -102,6 +103,14 @@ class Nation:
         self.popularity_events = AllPopularityEvents()
 
         self.update_presidential_hopefuls()
+        self._update_context()
+
+    def _update_context(self):
+        """Push the current year/president/player-party to the interface for
+        display in a persistent status area (a no-op on text frontends)."""
+        if self.interface is not None:
+            self.interface.set_context(year=self.year, president=self.president,
+                                       party=self.player_party)
 
     def presidential_states(self):
         """The 50 states plus DC. DC casts electoral votes but has no seats in Congress,
@@ -138,6 +147,7 @@ class Nation:
         if self.year % 4 == 0:
             self.update_issues()
 
+        self._update_context()
         self.interface.announce(str(self.year))
         self.interface.announce("President:")
         self.interface.announce(str(self.president))
@@ -224,11 +234,8 @@ class Nation:
     def display_polling_on_issues(self):
         for issue in self.issues:
             poll = self.get_polling_on_issue(issue)
-            self.interface.announce(str(issue))
-            poll_string = ""
-            for stance in issue.stances.keys():
-                poll_string += str(stance) + " " + str(round(poll[stance], 1)) + "% "
-            self.interface.announce(poll_string)
+            results = [(str(stance), poll[stance]) for stance in issue.stances.keys()]
+            self.interface.show_poll(str(issue), results)
 
     def record_law(self, law):
         self.laws_passed[self.year] = law
