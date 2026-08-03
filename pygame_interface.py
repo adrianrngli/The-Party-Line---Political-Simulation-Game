@@ -227,6 +227,11 @@ class PygameInterface(GameInterface):
         """Blocking screen for the president's sign/veto decision on a bill."""
         self._modal(title, summary, None, "Review the decision, then continue.")
 
+    def event(self, title, lines=()):
+        """Blocking popup the player must acknowledge (news events + annual report)."""
+        self._modal(str(title), [str(line) for line in lines], None,
+                    "Press Continue to acknowledge.")
+
     def _modal(self, title, summary, details, prompt):
         """Shared blocking overlay: a titled panel with summary lines and an
         optional scrollable, toggle-gated details list. Continue/Enter returns."""
@@ -539,8 +544,9 @@ class PygameInterface(GameInterface):
             (inner.left, y))
         y += self.title_font.get_linesize() + 6
         for line in summary:
-            self.screen.blit(self.bold.render(line, True, self.TEXT), (inner.left, y))
-            y += self.bold.get_linesize()
+            for piece in self._wrap(str(line), inner.width, self.bold):
+                self.screen.blit(self.bold.render(piece, True, self.TEXT), (inner.left, y))
+                y += self.bold.get_linesize()
         self.screen.set_clip(None)
 
         if not details:

@@ -63,6 +63,15 @@ class GameInterface:
         for line in (details or []):
             self.announce(line)
 
+    def event(self, title, lines=()):
+        """Show a breaking-news event or annual report: `title` is the banner
+        and `lines` the body lines. Default: emit them as narration. A graphical
+        frontend shows a dismissible popup the player must acknowledge before
+        continuing."""
+        self.announce(title)
+        for line in lines:
+            self.announce(line)
+
     def show_decision(self, title, summary):
         """Show the president's sign/veto decision on a bill that passed both
         chambers, as its own screen. Default: announce the title and each line.

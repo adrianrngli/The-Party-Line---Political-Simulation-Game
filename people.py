@@ -263,13 +263,17 @@ class President(Politician):
         if random_seed < self.stats["corruptness"].value/max(self.years_of_experience, 1):
             scandal = events.random_scandal()
             scandal.apply_to_president(states)
-            interface.announce(scandal.generate_headline(self))
+            interface.event("Breaking news",
+                            [scandal.generate_headline(self),
+                             "Presidential approval falls across the country."])
             return scandal
         random_seed = random.random() * 100
         if random_seed < 100 - self.stats["charisma"].value:
             gaffe = events.random_gaffe()
             gaffe.apply_to_president(states)
-            interface.announce(gaffe.generate_headline(self))
+            interface.event("Breaking news",
+                            [gaffe.generate_headline(self),
+                             "Presidential approval takes a hit nationwide."])
             return gaffe
     
 class VicePresident(Politician):

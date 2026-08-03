@@ -283,14 +283,19 @@ class Nation:
                     party.stats["popularity"].subtract(sqrt(self.president.stats["popularity"].value - 50)/5)
                 else:
                     party.stats["popularity"].add(sqrt(50 - self.president.stats["popularity"].value)/5)
-        self.interface.announce("Presidential approval rating: " + str(round(self.president.stats["popularity"].value, 1)) + "%")
+        report = ["Presidential approval: "
+                  + str(round(self.president.stats["popularity"].value, 1)) + "%"]
         for i in range(2):
-            self.interface.announce(str(self.parties[i]) + " approval rating: " + str(round(self.parties[i].stats["popularity"].value, 1)) + "% approve")
+            report.append(str(self.parties[i]) + " approval: "
+                          + str(round(self.parties[i].stats["popularity"].value, 1)) + "%")
         if self.laws_passed[self.year] != None:
-            self.interface.announce(str(self.laws_passed[self.year]) + " approval rating: " + str(round(self.laws_passed[self.year].get_national_popularity(), 1)) + "%")
-        if self.econ_record.get_growth(self.year) < 0.0:
-            self.interface.announce("The US has entered a recession!")
-        self.interface.announce(economic_forecast(self.econ_record.get_growth(self.year)))
+            report.append(str(self.laws_passed[self.year]) + " approval: "
+                          + str(round(self.laws_passed[self.year].get_national_popularity(), 1)) + "%")
+        growth = self.econ_record.get_growth(self.year)
+        if growth < 0.0:
+            report.append("The US has entered a recession!")
+        report.append(economic_forecast(growth))
+        self.interface.event("The State of the Nation in " + str(self.year), report)
 
     def calculate_economic_growth(self):
         total_national_growth = 0.0
