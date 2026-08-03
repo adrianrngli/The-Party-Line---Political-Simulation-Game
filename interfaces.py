@@ -51,6 +51,26 @@ class GameInterface:
             bar = "#" * filled + "-" * (20 - filled)
             self.announce("  " + str(label) + "  " + bar + " " + str(round(percent, 1)) + "%")
 
+    def show_vote(self, title, summary, details=None):
+        """Show a chamber vote. `title` names the vote, `summary` is the list of
+        result lines (party tallies, totals, outcome), and `details` is an
+        optional list of individual member-vote lines. Default: announce the
+        title, the summary, then the details. A graphical frontend hides the
+        details behind a button so only the final result shows up front."""
+        self.announce(title)
+        for line in summary:
+            self.announce(line)
+        for line in (details or []):
+            self.announce(line)
+
+    def show_decision(self, title, summary):
+        """Show the president's sign/veto decision on a bill that passed both
+        chambers, as its own screen. Default: announce the title and each line.
+        A graphical frontend shows it as a dismissible screen."""
+        self.announce(title)
+        for line in summary:
+            self.announce(line)
+
     def pick_state(self, prompt, state_abbrevs, allow_quit=True, info=None):
         """Choose one of the given states (by abbreviation), or None if the
         player quits. `info` optionally maps each abbreviation to a line of

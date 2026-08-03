@@ -218,6 +218,47 @@ class PygameInterface(GameInterface):
             self._pick_states = None
             self._pick_info = None
 
+    def show_vote(self, title, summary, details=None):
+        """Blocking vote modal: the final tally shows up front; individual
+        member votes stay hidden behind a toggle. Continue/Enter dismisses."""
+        self._modal(title, summary, details, "Review the vote, then continue.")
+
+    def show_decision(self, title, summary):
+        """Blocking screen for the president's sign/veto decision on a bill."""
+        self._modal(title, summary, None, "Review the decision, then continue.")
+
+    def _modal(self, title, summary, details, prompt):
+        """Shared blocking overlay: a titled panel with summary lines and an
+        optional scrollable, toggle-gated details list. Continue/Enter returns."""
+        self.active_panel = None
+        self._pick_states = None
+        details = list(details or [])
+        showing = False
+        scroll = 0
+        while True:
+            mouse = pygame.mouse.get_pos()
+            visible_rows = self._vote_visible_rows()
+            max_scroll = max(0, len(details) - visible_rows)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self._shutdown()
+                elif event.type == pygame.MOUSEWHEEL:
+                    if showing:
+                        scroll = self._clamp(scroll - event.y, 0, max_scroll)
+                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    if self._action_rect().collidepoint(event.pos):
+                        return
+                    if details and self._vote_toggle_rect().collidepoint(event.pos):
+                        showing = not showing
+                        scroll = 0
+                elif event.type == pygame.KEYDOWN and event.key in (pygame.K_RETURN, pygame.K_SPACE):
+                    return
+            self._render_dashboard(mouse=mouse)
+            self._render_vote_panel(title, summary, details, showing, scroll, mouse)
+            self._draw_action_and_prompt("Continue", prompt, mouse)
+            pygame.display.flip()
+            self.clock.tick(self.FPS)
+
     def select(self, prompt, options, labeler=str, *, details=None, allow_quit=False):
         options = list(options)
         cards = None
@@ -483,6 +524,63 @@ class PygameInterface(GameInterface):
             surf = self.bold.render("Choose candidate", True, self.WHITE)
             self.screen.blit(surf, (r.centerx - surf.get_width() // 2,
                                     r.centery - surf.get_height() // 2))
+
+    def _render_vote_panel(self, title, summary, details, showing, scroll, mouse):
+        """Overlay in the map area: title + result summary, with the individual
+        votes gated behind a toggle button and scrollable when revealed."""
+        rect = self._panel_rect()
+        pygame.draw.rect(self.screen, self.PANEL_LIGHT, rect, border_radius=10)
+        pygame.draw.rect(self.screen, self.ACCENT, rect, 2, border_radius=10)
+        inner = rect.inflate(-2 * self.PAD, -2 * self.PAD)
+        self.screen.set_clip(inner)
+        y = inner.top
+        self.screen.blit(self.title_font.render(
+            self._truncate(title, inner.width, self.title_font), True, self.WHITE),
+            (inner.left, y))
+        y += self.title_font.get_linesize() + 6
+        for line in summary:
+            self.screen.blit(self.bold.render(line, True, self.TEXT), (inner.left, y))
+            y += self.bold.get_linesize()
+        self.screen.set_clip(None)
+
+        if not details:
+            return
+        toggle = self._vote_toggle_rect()
+        hover = toggle.collidepoint(mouse)
+        pygame.draw.rect(self.screen, self.ACCENT_HOVER if hover else self.ACCENT,
+                         toggle, border_radius=6)
+        label = ("Hide" if showing else "Show") + " individual votes"
+        surf = self.bold.render(label, True, self.WHITE)
+        self.screen.blit(surf, (toggle.centerx - surf.get_width() // 2,
+                                toggle.centery - surf.get_height() // 2))
+        if not showing:
+            return
+        visible_rows = self._vote_visible_rows()
+        list_top = toggle.bottom + 8
+        list_rect = pygame.Rect(inner.left, list_top, inner.width, rect.bottom - self.PAD - list_top)
+        self.screen.set_clip(list_rect)
+        line_h = self.font.get_linesize()
+        yy = list_rect.top
+        for line in details[scroll:scroll + visible_rows]:
+            self.screen.blit(self.font.render(line, True, self.TEXT), (list_rect.left, yy))
+            yy += line_h
+        self.screen.set_clip(None)
+        if len(details) > visible_rows:
+            hint = "scroll for more (" + str(scroll + 1) + "-" \
+                + str(min(len(details), scroll + visible_rows)) \
+                + " of " + str(len(details)) + ")"
+            self.screen.blit(self.font.render(hint, True, self.MUTED),
+                             (list_rect.left, rect.bottom - self.PAD - line_h + 2))
+
+    def _vote_toggle_rect(self):
+        p = self._panel_rect()
+        return pygame.Rect(p.left + self.PAD, p.top + self.PAD + 190, 240, 32)
+
+    def _vote_visible_rows(self):
+        p = self._panel_rect()
+        list_top = self._vote_toggle_rect().bottom + 8
+        # leave a line at the bottom for the scroll hint
+        return max(1, (p.bottom - self.PAD - list_top) // self.font.get_linesize() - 1)
 
     def _panel_items(self):
         """Build the current panel's content from live nation data."""
