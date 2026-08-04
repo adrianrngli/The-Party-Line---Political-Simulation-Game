@@ -10,7 +10,7 @@ class Player:
     def edit_senate_elections(self, elections):
         return
 
-    def choose_presidential_ticket(self, nation):
+    def choose_presidential_ticket(self, nation, opponent_ticket=None):
         presidential_hopefuls = nation.presidential_hopefuls[self.party].copy()
         if nation.president in presidential_hopefuls:
             return [nation.president, nation.vice_president]
@@ -76,27 +76,51 @@ class HumanPlayer(Player):
         self.interface.announce(str(election))
         self.interface.announce()
         self.interface.show_state(election.state, issues)
-        for candidate in election.general_candidates:
-            self.interface.show_person(candidate, issues)
+        opponent = next((candidate for candidate in election.general_candidates
+                         if candidate.party != self.party), None)
+
+        def show_opponent(ui):
+            ui.announce("Opponent's candidate")
+            if opponent is not None:
+                ui.show_person(opponent, issues)
+            else:
+                ui.announce("(none yet)")
+
         nominee = self.interface.select(
             "Enter the number of the candidate you would like to nominate",
             election.primary_candidates[self.party],
             details=lambda ui, candidate: ui.show_person(candidate, issues),
+            reference=show_opponent,
+            focus_state=election.state.abbreviation,
         )
         election.nominate_candidate(nominee)
 
-    def choose_presidential_ticket(self, nation):
+    def choose_presidential_ticket(self, nation, opponent_ticket=None):
         hopefuls = nation.presidential_hopefuls[self.party]
+
+        def show_opponent_ticket(ui):
+            ui.announce("Opponent's ticket")
+            if opponent_ticket:
+                ui.announce("For President:")
+                ui.show_person(opponent_ticket[0], nation.issues)
+                ui.announce("For Vice President:")
+                ui.show_person(opponent_ticket[1], nation.issues)
+            else:
+                ui.announce("(not yet chosen)")
+
+        reference = show_opponent_ticket if opponent_ticket else None
         nominee = self.interface.select(
             "Enter the number of the candidate you would like to nominate for president",
             hopefuls,
             details=lambda ui, candidate: ui.show_person(candidate, nation.issues),
+            reference=reference,
         )
         nominee.set_stat("fame", 100)
         running_mate = self.interface.select(
             "Enter the number of the candidate you would like to nominate for vice president",
             [hopeful for hopeful in hopefuls if hopeful != nominee],
             details=lambda ui, candidate: ui.show_person(candidate, nation.issues),
+            reference=reference,
         )
         return [nominee, running_mate]
 

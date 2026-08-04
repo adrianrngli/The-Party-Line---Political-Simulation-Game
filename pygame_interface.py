@@ -264,7 +264,8 @@ class PygameInterface(GameInterface):
             pygame.display.flip()
             self.clock.tick(self.FPS)
 
-    def select(self, prompt, options, labeler=str, *, details=None, allow_quit=False):
+    def select(self, prompt, options, labeler=str, *, details=None, allow_quit=False,
+               reference=None, focus_state=None):
         options = list(options)
         cards = None
         if details is not None:
@@ -274,8 +275,15 @@ class PygameInterface(GameInterface):
                 details(self, option)
                 cards.append([line for line in self._capture if line != ""] or [""])
             self._capture = None
+        ref_lines = None
+        if reference is not None:
+            self._capture = []
+            reference(self)
+            ref_lines = [line for line in self._capture if line != ""] or None
+            self._capture = None
         entries = [(labeler(option), option) for option in options]
-        return self._choose(prompt, entries, allow_quit=allow_quit, cards=cards)
+        return self._choose(prompt, entries, allow_quit=allow_quit, cards=cards,
+                            ref_lines=ref_lines, focus_state=focus_state)
 
     def confirm(self, prompt):
         entries = [("Yea  (Y)", True), ("Nay  (N)", False)]
@@ -286,10 +294,14 @@ class PygameInterface(GameInterface):
     # list/card picker (select / confirm) -- lives in the control strip
     # ------------------------------------------------------------------ #
 
-    def _choose(self, prompt, entries, *, allow_quit=False, keymap=None, cards=None):
+    def _choose(self, prompt, entries, *, allow_quit=False, keymap=None, cards=None,
+                ref_lines=None, focus_state=None):
         keymap = keymap or {}
         list_scroll = 0
         focus = 0
+        # ref mode: state whose compact card is shown alongside the opponent
+        sel_state = focus_state if (focus_state in self._state_index) else None
+        ref_collapsed = False  # ref mode: opponent card shrunk to its heading to reveal the map
         c = self.control_rect
         prompt_lines = self._wrap(prompt, c.width - 2 * self.PAD, self.bold)
         list_top = c.y + self.PAD + len(prompt_lines) * self.bold.get_linesize() + 4
@@ -327,6 +339,28 @@ class PygameInterface(GameInterface):
                         return None
                     if self._handle_click(event.pos):
                         continue
+                    if ref_lines:
+                        # ref mode: the opponent card + an optional state card float
+                        # over the map. Each card has a corner button -- collapse the
+                        # opponent card (or dismiss the state card) to reveal and click
+                        # the map beneath (e.g. a state hidden under the card).
+                        if self.active_panel is None:
+                            _, ref_rect, _, state_rect = self._ref_layout(
+                                ref_lines, ref_collapsed, sel_state)
+                            if self._card_toggle_rect(ref_rect).collidepoint(event.pos):
+                                ref_collapsed = not ref_collapsed
+                            elif ref_rect.collidepoint(event.pos):
+                                pass  # opponent card body: no-op
+                            elif state_rect is not None \
+                                    and self._card_toggle_rect(state_rect).collidepoint(event.pos):
+                                sel_state = None  # dismiss the state card
+                            elif state_rect is not None and state_rect.collidepoint(event.pos):
+                                pass  # state card body: no-op
+                            else:
+                                hit = self._map_hover(event.pos)
+                                if hit is not None and hit in self._state_index:
+                                    sel_state = hit
+                        continue
                     self._open_state_panel(event.pos)  # inspect a state while choosing
                 elif event.type == pygame.KEYDOWN:
                     if event.key in keymap:
@@ -345,6 +379,14 @@ class PygameInterface(GameInterface):
                             return entries[pick][1]
 
             self._render_dashboard(mouse=mouse)
+            if ref_lines and self.active_panel is None:
+                ref_disp, ref_rect, state_disp, state_rect = self._ref_layout(
+                    ref_lines, ref_collapsed, sel_state)
+                self._render_info_card(ref_rect, ref_disp)
+                self._render_card_toggle(ref_rect, mouse, "+" if ref_collapsed else "-")
+                if state_rect is not None:
+                    self._render_info_card(state_rect, state_disp)
+                    self._render_card_toggle(state_rect, mouse, "x")
             self._render_picker(prompt_lines, row_rects, entries, mouse, allow_quit,
                                 card_rect, cards[focus] if cards else None, focus)
             pygame.display.flip()
@@ -530,6 +572,72 @@ class PygameInterface(GameInterface):
             self.screen.blit(surf, (r.centerx - surf.get_width() // 2,
                                     r.centery - surf.get_height() // 2))
 
+    REF_CARD_W = 380
+
+    def _card_rect(self, lines, *, right=False):
+        """A compact card in the map area, sized to its content and anchored to
+        the top-left (or top-right) so the national map stays visible around it.
+        Two cards (opponent + state) fit side by side with the map behind."""
+        m = self.map_rect
+        width = min(self.REF_CARD_W, m.width - 2 * self.PAD)
+        inner_w = width - 2 * self.PAD
+        height = self.PAD
+        for i, line in enumerate(lines):
+            font = self.title_font if i == 0 else self.font
+            height += len(self._wrap(str(line), inner_w, font)) * font.get_linesize()
+            if i == 0:
+                height += 4
+        height = min(height + self.PAD, m.height - 2 * self.PAD)
+        x = (m.right - self.PAD - width) if right else (m.left + self.PAD)
+        return pygame.Rect(x, m.top + self.PAD, width, height)
+
+    def _reference_rect(self, ref_lines):
+        return self._card_rect(ref_lines)
+
+    def _render_info_card(self, rect, lines):
+        """Draw a titled, accent-bordered card. The first line is the heading."""
+        pygame.draw.rect(self.screen, self.PANEL_LIGHT, rect, border_radius=10)
+        pygame.draw.rect(self.screen, self.ACCENT, rect, 2, border_radius=10)
+        inner = rect.inflate(-2 * self.PAD, -2 * self.PAD)
+        self.screen.set_clip(inner)
+        y = inner.top
+        for i, line in enumerate(lines):
+            font = self.title_font if i == 0 else self.font
+            color = self.WHITE if i == 0 else self.TEXT
+            for piece in self._wrap(str(line), inner.width, font):
+                self.screen.blit(font.render(piece, True, color), (inner.left, y))
+                y += font.get_linesize()
+            if i == 0:
+                y += 4
+        self.screen.set_clip(None)
+
+    def _render_reference(self, ref_lines):
+        """The opponent's candidate card, pinned top-left so the map stays visible."""
+        self._render_info_card(self._card_rect(ref_lines), ref_lines)
+
+    def _card_toggle_rect(self, rect):
+        """Small button in a card's top-right corner (collapse / dismiss)."""
+        return pygame.Rect(rect.right - self.PAD - 20, rect.top + self.PAD - 2, 20, 20)
+
+    def _render_card_toggle(self, rect, mouse, glyph):
+        r = self._card_toggle_rect(rect)
+        hover = r.collidepoint(mouse)
+        pygame.draw.rect(self.screen, self.ACCENT_HOVER if hover else self.QUIT_COLOR,
+                         r, border_radius=4)
+        surf = self.bold.render(glyph, True, self.WHITE)
+        self.screen.blit(surf, (r.centerx - surf.get_width() // 2,
+                                r.centery - surf.get_height() // 2))
+
+    def _ref_layout(self, ref_lines, ref_collapsed, sel_state):
+        """Current display lines and rects for the opponent card (full or
+        collapsed to its heading) and the optional state card, so click handling
+        and rendering agree frame to frame."""
+        ref_disp = ref_lines[:1] if ref_collapsed else ref_lines
+        ref_rect = self._card_rect(ref_disp)
+        state_disp = self._state_panel_items(sel_state) if sel_state is not None else None
+        state_rect = self._card_rect(state_disp, right=True) if state_disp is not None else None
+        return ref_disp, ref_rect, state_disp, state_rect
+
     def _render_vote_panel(self, title, summary, details, showing, scroll, mouse):
         """Overlay in the map area: title + result summary, with the individual
         votes gated behind a toggle button and scrollable when revealed."""
@@ -621,37 +729,60 @@ class PygameInterface(GameInterface):
             if len(items) == 2:
                 items.append("No polling yet this year.")
             return items
-        if self.active_panel == "state":
-            st = self._state_index.get(self.panel_state)
-            if st is None:
-                return ["Unknown state."]
-            items = [st.name + " (" + str(st.rep_number) + " reps)", ""]
-            race_poll = (self._pick_info or {}).get(self.panel_state)
-            if race_poll:
-                items.append("Senate race polling:")
-                items.append("  " + str(race_poll))
-                items.append("")
-            results = (self._state_results or {}).get(self.panel_state)
-            if results:
-                items.append("Election results:")
-                for line in results:
-                    items.append("  " + line)
-                items.append("")
-            items.append("Wealth: " + st.wealth_classification()
-                         + "    Density: " + st.density_classification())
-            items.append("")
-            items.append("Senators:")
-            if any(sen is not None for sen in st.senators):
-                for sen in st.senators:
-                    items.append("  " + (str(sen) if sen is not None else "(vacant)"))
-            else:
-                items.append("  (none)")
+        if self.active_panel == "president":
+            p = n.president
+            items = [str(p), ""]
+            items.append("Approval: "
+                         + str(round(p.stats["popularity"].value, 1)) + "%")
+            items.append("Years in office: " + str(p.years_in_office))
+            items.append("Age: " + str(p.age)
+                         + "    Experience: " + str(p.years_of_experience) + " yrs")
+            items.append("Fame: " + p.fame_classification())
+            items.append("Charisma: " + p.charisma_classification())
+            items.append("Corruptness: " + p.corruptness_classification())
             items.append("")
             items.append("Positions:")
             for issue in n.issues:
-                items.append("  " + str(issue) + ": " + str(st.get_stance(issue)))
+                items.append("  " + str(issue) + ": " + str(p.get_stance(issue)))
             return items
+        if self.active_panel == "state":
+            return self._state_panel_items(self.panel_state)
         return [""]
+
+    def _state_panel_items(self, abbrev):
+        """Build a state's info card content from live nation data."""
+        n = self.nation
+        if n is None:
+            return ["No data yet."]
+        st = self._state_index.get(abbrev)
+        if st is None:
+            return ["Unknown state."]
+        items = [st.name + " (" + str(st.rep_number) + " reps)", ""]
+        race_poll = (self._pick_info or {}).get(abbrev)
+        if race_poll:
+            items.append("Senate race polling:")
+            items.append("  " + str(race_poll))
+            items.append("")
+        results = (self._state_results or {}).get(abbrev)
+        if results:
+            items.append("Election results:")
+            for line in results:
+                items.append("  " + line)
+            items.append("")
+        items.append("Wealth: " + st.wealth_classification()
+                     + "    Density: " + st.density_classification())
+        items.append("")
+        items.append("Senators:")
+        if any(sen is not None for sen in st.senators):
+            for sen in st.senators:
+                items.append("  " + (str(sen) if sen is not None else "(vacant)"))
+        else:
+            items.append("  (none)")
+        items.append("")
+        items.append("Positions:")
+        for issue in n.issues:
+            items.append("  " + str(issue) + ": " + str(st.get_stance(issue)))
+        return items
 
     # ------------------------------------------------------------------ #
     # shared event handling + geometry
@@ -690,7 +821,9 @@ class PygameInterface(GameInterface):
         w = bar.width - 16
         national = pygame.Rect(bar.x + 8, bar.y + 8, w, 40)
         polling = pygame.Rect(bar.x + 8, national.bottom + 8, w, 40)
-        return [("National", "national", national), ("Polling", "polling", polling)]
+        president = pygame.Rect(bar.x + 8, polling.bottom + 8, w, 40)
+        return [("National", "national", national), ("Polling", "polling", polling),
+                ("President", "president", president)]
 
     def _action_rect(self):
         c = self.control_rect

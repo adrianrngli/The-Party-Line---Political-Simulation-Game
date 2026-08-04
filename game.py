@@ -101,9 +101,19 @@ class Game:
             self.presidential_setup_phase()
 
     def presidential_setup_phase(self):
-        tickets = [player.choose_presidential_ticket(self.nation) for player in self.players]
-        presidential_candidates = [ticket[0] for ticket in tickets]
-        running_mates = {ticket[0]: ticket[1] for ticket in tickets}
+        # The CPU nominates first so the human can see the opposing ticket while
+        # choosing their own. Tickets are recombined in player order afterward.
+        tickets = {}
+        for player in self.players:
+            if type(player) == CPUPlayer:
+                tickets[player] = player.choose_presidential_ticket(self.nation)
+        opponent_ticket = next(iter(tickets.values()), None)
+        for player in self.players:
+            if type(player) == HumanPlayer:
+                tickets[player] = player.choose_presidential_ticket(self.nation, opponent_ticket)
+        ordered_tickets = [tickets[player] for player in self.players]
+        presidential_candidates = [ticket[0] for ticket in ordered_tickets]
+        running_mates = {ticket[0]: ticket[1] for ticket in ordered_tickets}
         self.presidential_election = NationalPresidentialElection(
             self.nation, presidential_candidates, running_mates)
 

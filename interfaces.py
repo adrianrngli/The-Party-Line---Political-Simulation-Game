@@ -10,11 +10,16 @@ class GameInterface:
     only requires implementing these methods against the new toolkit.
     """
 
-    def select(self, prompt, options, labeler=str, *, details=None, allow_quit=False):
+    def select(self, prompt, options, labeler=str, *, details=None, allow_quit=False,
+               reference=None, focus_state=None):
         """Present `options` and return the one the player chooses.
 
         labeler(option) -> str produces the short label shown in the list.
         details(interface, option), if given, renders richer per-option detail.
+        reference(interface), if given, renders fixed context shown alongside the
+        options (e.g. the opponent's candidate) -- it is not selectable.
+        focus_state, if given, is a state abbreviation whose info a map frontend
+        surfaces automatically (e.g. the state a senate race is in).
         If allow_quit is True the player may back out, in which case return None.
         """
         raise NotImplementedError
@@ -112,9 +117,12 @@ class GameInterface:
 class ConsoleInterface(GameInterface):
     """Text frontend: reproduces the game's original console behavior."""
 
-    def select(self, prompt, options, labeler=str, *, details=None, allow_quit=False):
+    def select(self, prompt, options, labeler=str, *, details=None, allow_quit=False,
+               reference=None, focus_state=None):
         options = list(options)
         while True:
+            if reference is not None:
+                reference(self)
             for i, option in enumerate(options):
                 print(str(i + 1) + ". " + labeler(option))
                 if details is not None:
