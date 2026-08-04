@@ -116,19 +116,21 @@ class Politician(StatHolder):
         else:
             return "pants on fire"
         
-    def run_random_event(self, events, interface):
+    def run_random_event(self, events):
+        """Roll for a scandal or gaffe, apply its effect, and return a news
+        headline string (or None). The caller gathers these into the year's
+        news digest rather than surfacing each one on its own."""
         random_seed = random.random() * 500
         if random_seed < sqrt(self.stats["corruptness"].value/max(self.years_of_experience, 1)):
             scandal = events.random_scandal()
             scandal.apply(self)
-            interface.announce(scandal.generate_headline(self))
-            return scandal
+            return scandal.generate_headline(self)
         random_seed = random.random() * 500
         if random_seed < sqrt(100 - self.stats["charisma"].value):
             gaffe = events.random_gaffe()
             gaffe.apply(self)
-            interface.announce(gaffe.generate_headline(self))
-            return gaffe
+            return gaffe.generate_headline(self)
+        return None
     
 class Representative(Politician):
     """Represents a House Representative. Representatives vote on laws."""

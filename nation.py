@@ -241,16 +241,17 @@ class Nation:
         self.laws_passed[self.year] = law
 
     def mid_year_update(self):
+        news = []  # minor scandals/gaffes, shown together as a year-end digest
         for state in self.states:
             state.stats["presidential_approval"].subtract(2.5)
             state.update_economy(self.industry_tracker, self.year)
             state.stats["presidential_approval"].add((state.econ_record.get_growth(self.year) - 2.0) * 1.5)
             for sen in state.senators:
-                sen.run_random_event(self.popularity_events, self.interface)
+                news.append(sen.run_random_event(self.popularity_events))
             if state.governor != None:
-                state.governor.run_random_event(self.popularity_events, self.interface)
+                news.append(state.governor.run_random_event(self.popularity_events))
             if state.largest_city.mayor != None:
-                state.largest_city.mayor.run_random_event(self.popularity_events, self.interface)
+                news.append(state.largest_city.mayor.run_random_event(self.popularity_events))
         # DC has no senators/governor to poll, but its approval and economy must stay
         # current for the presidential election contests that read them.
         self.dc.stats["presidential_approval"].subtract(2.5)
@@ -259,7 +260,7 @@ class Nation:
         president_event = self.president.run_random_event(self.popularity_events, self.states, self.interface)
         if president_event != None and type(president_event) == Scandal:
             self.presidential_scandal = True
-        self.vice_president.run_random_event(self.popularity_events, self.interface)
+        news.append(self.vice_president.run_random_event(self.popularity_events))
         if self.year not in self.laws_passed.keys() or self.laws_passed[self.year] == None:
             self.laws_passed[self.year] = None
             house_majority_party = self.get_house_majority_party()
@@ -283,6 +284,9 @@ class Nation:
                     party.stats["popularity"].subtract(sqrt(self.president.stats["popularity"].value - 50)/5)
                 else:
                     party.stats["popularity"].add(sqrt(50 - self.president.stats["popularity"].value)/5)
+        news = [headline for headline in news if headline]
+        if news:
+            self.interface.event("In the news this year", news)
         report = ["Presidential approval: "
                   + str(round(self.president.stats["popularity"].value, 1)) + "%"]
         for i in range(2):
