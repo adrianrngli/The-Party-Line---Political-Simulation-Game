@@ -92,7 +92,11 @@ class Game:
         self.senate_elections.display_polling()
         self.interface.announce(self.nation.get_senate_totals())
         for player in self.players:
-            player.edit_senate_elections(self.senate_elections)
+            if type(player) == CPUPlayer:
+                player.edit_senate_elections(self.senate_elections)
+        for player in self.players:
+            if type(player) == HumanPlayer:
+                player.edit_senate_elections(self.senate_elections)
         if self.nation.year % 4 == 0:
             self.presidential_setup_phase()
 
