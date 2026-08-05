@@ -61,7 +61,7 @@ class HumanPlayer(Player):
                                  if elections]
             state_polling = senate_election.get_polling_by_state()
             state_choice = self.interface.pick_state(
-                "Hover a highlighted race state to see its polling; open one to inspect it or choose a candidate, or quit",
+                "Senate elections: click a highlighted state to see its race and nominate your candidate — or Quit when you're done",
                 states_with_races,
                 allow_quit=True,
                 info=state_polling,
@@ -87,7 +87,7 @@ class HumanPlayer(Player):
                 ui.announce("(none yet)")
 
         nominee = self.interface.select(
-            "Enter the number of the candidate you would like to nominate",
+            "Nominate your Senate candidate for " + election.state.name,
             election.primary_candidates[self.party],
             details=lambda ui, candidate: ui.show_person(candidate, issues),
             reference=show_opponent,
@@ -128,10 +128,9 @@ class HumanPlayer(Player):
         """Prompt the player to choose their party's stance on each issue"""
         platform = dict()
         for issue in issues:
-            self.interface.announce("Issue: " + str(issue))
             stances = list(issue.stances.values())
             platform[issue] = self.interface.select(
-                "Enter the number of your party's position on this issue",
+                "Choose your party's position on " + str(issue),
                 stances,
             )
         self.party.set_platform(platform)
@@ -140,7 +139,7 @@ class HumanPlayer(Player):
         """Prompt the player to choose an issue and a stance, then attempt to pass a bill on it"""
         unresolved_issues = [issue for issue in nation.issues if not issue.resolved]
         issue = self.interface.select(
-            "Enter the number of the issue you would like to legislate on",
+            "Choose the issue you would like to legislate on",
             unresolved_issues,
         )
 
@@ -158,7 +157,7 @@ class HumanPlayer(Player):
             return label
 
         return self.interface.select(
-            "Enter the number of the stance your law will take",
+            "Choose your law's stance on " + str(issue),
             bills,
             labeler=bill_label,
         )

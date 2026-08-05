@@ -149,17 +149,22 @@ class Senator(Politician):
         if (self.age < 30):
             self.age = random.randint(30, 85)
 
-    def consider_retirement(self, current_year: int, interface):
+    def consider_retirement(self, current_year: int):
         # when senators reach age 65 they get a 25% chance to not run for reelection. This chance increases by 4% for each year age increases
+        # Returns a short announcement string when the senator decides to retire,
+        # else None, so the caller can gather them into a start-of-year popup.
         if self.age >= 65 and current_year % 6 == self.election_year:
             retirement_chance = min(25+4*(self.age-65), 90)
             rand_num = random.randint(1, 100)
             if (rand_num <= retirement_chance):
-                interface.announce(str(self)+" has announced retirement at the age of " + str(self.age)+ " at the end of this term, and will not be running for reelection.")
                 self.set_to_retire = True
+                return str(self) + " (age " + str(self.age) + ") will not seek reelection when this term ends."
+        return None
 
-    def increment_year(self, year, president, interface):
-        """Updates age and years of experience for the senator. Additionally, if the senator is 65 and up for election they have a chance to announce retirement"""
+    def increment_year(self, year, president):
+        """Updates age and stances for the senator. If they are 65+ and up for
+        election they may decide not to seek reelection; returns that
+        announcement string (or None) so the nation can collect them."""
         super().increment_year()
         for axis in ["economic_stance", "foreign_stance", "social_stance"]:
             if president.stats["popularity"].value >= 50.0:
@@ -168,8 +173,8 @@ class Senator(Politician):
                 self.stats[axis].push_away_from(president.stats[axis], sqrt(50.0 - president.stats["popularity"].value)/15)
         if self.set_to_retire:
             self.retire()
-        else:
-            self.consider_retirement(year, interface)
+            return None
+        return self.consider_retirement(year)
 
     def retire(self):
         super().retire()

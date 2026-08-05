@@ -134,10 +134,13 @@ class Nation:
                     party.stats["popularity"].subtract(sqrt(self.president.stats["popularity"].value - 50)/5)
                 else:
                     party.stats["popularity"].add(sqrt(50 - self.president.stats["popularity"].value)/5)
+        retirements = []
         for state in self.states:
             for sen in state.senators:
                 if sen != None:
-                    sen.increment_year(self.year, self.president, self.interface)
+                    notice = sen.increment_year(self.year, self.president)
+                    if notice:
+                        retirements.append(notice)
                     if sen.retired:
                         state.replace_senator(sen, Senator(sen.party, state, sen.election_year))
             if state.governor != None:
@@ -148,6 +151,9 @@ class Nation:
             self.update_issues()
 
         self._update_context()
+        if retirements:
+            self.interface.event("Senators not seeking reelection in " + str(self.year),
+                                 retirements)
         self.interface.announce(str(self.year))
         self.interface.announce("President:")
         self.interface.announce(str(self.president))

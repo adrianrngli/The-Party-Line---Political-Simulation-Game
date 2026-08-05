@@ -463,9 +463,12 @@ class NationalSenateElection(Election):
         change_string = "no net change"
         for i in range(2):
             if self.points[self.nation.parties[i]] > self.initial_seats[self.nation.parties[i]]:
-                change_string = self.nation.parties[i].letter + "+" + str(self.points[self.nation.parties[i]] 
+                change_string = self.nation.parties[i].letter + "+" + str(self.points[self.nation.parties[i]]
                                                                           - self.initial_seats[self.nation.parties[i]])
-        self.nation.interface.announce(outcome_string + " (" + change_string + ")")
+        self.nation.interface.show_result(
+            "Senate Election Results",
+            [outcome_string + " (" + change_string + ")",
+             "New Senate: " + self.nation.get_senate_totals() + " (51 needed for a majority)"])
 
     def no_elections(self):
         for state in self.nation.states:
@@ -507,21 +510,18 @@ class NationalPresidentialElection(Election):
             self.state_results[state.abbreviation] = [
                 self.elections[state.abbreviation].get_results(),
                 str(state.rep_number + 2) + " electoral votes -> " + state_winner.party.letter]
-            self.nation.interface.announce(state.abbreviation + " (" + str(state.rep_number + 2) + " votes)")
-            self.nation.interface.announce(self.elections[state.abbreviation].get_results())
-        electoral_vote_string = ""
-        popular_vote_string = ""
-        
-        for i in range(len(self.candidates)):
-            electoral_vote_string += str(self.candidates[i]) + " " + str(self.electoral_vote[self.candidates[i]])
-            popular_vote_string += str(self.candidates[i]) + " " + str(round(100*self.proportional_vote[self.candidates[i]]/total_vote_count, 2)) + "%"
-            if i != len(self.candidates) - 1:
-                electoral_vote_string += " "
-                popular_vote_string += " "
-        self.nation.interface.announce("Electoral vote:")
-        self.nation.interface.announce(electoral_vote_string)
-        self.nation.interface.announce("Popular Vote:")
-        self.nation.interface.announce(popular_vote_string)
+        winner = self.candidates[0]
+        for candidate in self.candidates:
+            if self.electoral_vote[candidate] > self.electoral_vote[winner]:
+                winner = candidate
+        rows = [str(winner) + " wins the presidency"]
+        for candidate in self.candidates:
+            rows.append(str(candidate) + ":  " + str(self.electoral_vote[candidate])
+                        + " electoral votes,  "
+                        + str(round(100 * self.proportional_vote[candidate] / total_vote_count, 1))
+                        + "% of the popular vote")
+        rows.append("270 electoral votes needed to win")
+        self.nation.interface.show_result("Presidential Election Results", rows)
         self.implement_results()
 
     def implement_results(self):
@@ -583,4 +583,7 @@ class NationalHouseElection(Election):
                 change_string = self.nation.parties[i].letter + "+" + str(self.points[self.nation.parties[i]] 
                                                                           - self.initial_seats[self.nation.parties[i]])
         self.nation.house_election_results[self.nation.year] = change_string
-        self.nation.interface.announce(outcome_string + " (" + change_string + ")")
+        self.nation.interface.show_result(
+            "House Election Results",
+            [outcome_string + " (" + change_string + ")",
+             "New House: " + self.nation.get_house_totals() + " (218 needed for a majority)"])

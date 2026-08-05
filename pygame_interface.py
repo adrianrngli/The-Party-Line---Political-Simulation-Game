@@ -67,7 +67,7 @@ class PygameInterface(GameInterface):
         self.context = {}          # header fields (year, president, party)
         self._state_index = {}     # abbrev -> State (built when nation is bound)
         self.polls = {}            # issue title -> [(label, pct), ...]
-        self.status = []           # transient narration lines (not a history)
+        self.result_summary = None # (title, [rows]) headline result shown in the control strip
         self._capture = None       # when a list, output is diverted to build cards
         self.active_panel = None   # None | "national" | "polling" | "state"
         self.panel_state = None    # abbrev when active_panel == "state"
@@ -97,18 +97,19 @@ class PygameInterface(GameInterface):
     # ------------------------------------------------------------------ #
 
     def announce(self, text=""):
+        # announce() is the game's generic narration sink. On this dashboard the
+        # standing facts it carries (compositions, approval, the annual report)
+        # already live in the panels and modals, so echoing them into the control
+        # strip only reproduced an unreadable scrolling console. The strip is now
+        # reserved for the formatted result summary set via show_result(); plain
+        # narration is dropped here (the console frontend still prints it). The one
+        # exception is card/reference capture, which builds info-card text.
         if self._capture is not None:
             self._capture.append(str(text))
-            return
-        text = str(text)
-        if text.strip():
-            self.status.append(text)
-            self.status = self.status[-6:]
-        self._render_dashboard()
-        pygame.display.flip()
-        self.clock.tick(self.FPS)
 
     def show_person(self, person, issues=[]):
+        if self._capture is None:
+            return  # full profiles surface via detail cards / panels, not the strip
         self.announce(str(person))
         self.announce("  Age: " + str(person.age)
                       + "   Experience: " + str(person.years_of_experience) + " yrs")
@@ -121,6 +122,8 @@ class PygameInterface(GameInterface):
         self.announce("")
 
     def show_state(self, state, issues=[]):
+        if self._capture is None:
+            return  # state profiles surface via the state panel / info card, not the strip
         self.announce(state.name + " (" + str(state.rep_number) + " reps)")
         self.announce("  Wealth: " + state.wealth_classification()
                       + "   Density: " + state.density_classification())
@@ -133,6 +136,11 @@ class PygameInterface(GameInterface):
             GameInterface.show_poll(self, title, results)
             return
         self.polls[str(title)] = [(str(label), float(pct)) for label, pct in results]
+
+    def show_result(self, title, rows):
+        # Store the latest headline result; it is drawn as a titled, labeled block
+        # in the control strip and persists until the next result replaces it.
+        self.result_summary = (str(title), [str(row) for row in rows])
 
     def set_context(self, **fields):
         nation = fields.pop("nation", None)
@@ -258,7 +266,11 @@ class PygameInterface(GameInterface):
                         scroll = 0
                 elif event.type == pygame.KEYDOWN and event.key in (pygame.K_RETURN, pygame.K_SPACE):
                     return
-            self._render_dashboard(mouse=mouse)
+            # A modal is self-contained: the vote/decision/event panel and its
+            # own prompt carry everything relevant, so suppress the result summary
+            # -- otherwise a headline result from earlier in the turn lingers at
+            # the top of the control strip as stray text behind the modal.
+            self._render_dashboard(mouse=mouse, show_summary=False)
             self._render_vote_panel(title, summary, details, showing, scroll, mouse)
             self._draw_action_and_prompt("Continue", prompt, mouse)
             pygame.display.flip()
@@ -416,7 +428,8 @@ class PygameInterface(GameInterface):
     # dashboard rendering
     # ------------------------------------------------------------------ #
 
-    def _render_dashboard(self, *, highlight=None, hover_state=None, mouse=(0, 0)):
+    def _render_dashboard(self, *, highlight=None, hover_state=None, mouse=(0, 0),
+                          show_summary=True):
         self.screen.fill(self.BG)
         self._render_header()
         pygame.draw.rect(self.screen, self.PANEL, self.map_rect, border_radius=8)
@@ -424,7 +437,8 @@ class PygameInterface(GameInterface):
         self._render_map(highlight, eff_hover)
         self._render_buttons(mouse)
         pygame.draw.rect(self.screen, self.PANEL, self.control_rect, border_radius=8)
-        self._render_status()
+        if show_summary:
+            self._render_result_panel()
         if self.active_panel:
             self._render_panel()
 
@@ -501,15 +515,33 @@ class PygameInterface(GameInterface):
                 self.screen.blit(self.font.render(label, True, self.MUTED), (sw.right + 8, y))
                 y += 24
 
-    def _render_status(self):
+    def _render_result_panel(self):
+        """Draw the latest headline result (from show_result) as a titled, labeled
+        block in the control strip: a bold title over wrapped, fully-legible rows.
+        Nothing is truncated -- long lines wrap -- so a title like "Electoral
+        votes" can never be cut off. Skipped during a pick, where the hover strip
+        owns this area, and when there is no result yet."""
         if self._pick_info:  # during a pick, the hover strip owns this area
             return
-        y = self.control_rect.top + 8
-        for line in self.status[-3:]:
-            surf = self.font.render(self._truncate(line, self.control_rect.width - 24, self.font),
-                                    True, self.MUTED)
-            self.screen.blit(surf, (self.control_rect.left + 12, y))
-            y += self.font.get_linesize()
+        if not self.result_summary:
+            return
+        title, rows = self.result_summary
+        c = self.control_rect
+        inner_w = c.width - 2 * self.PAD
+        x = c.left + self.PAD
+        y = c.top + self.PAD
+        for line in self._wrap(title, inner_w, self.title_font):
+            self.screen.blit(self.title_font.render(line, True, self.WHITE), (x, y))
+            y += self.title_font.get_linesize()
+        y += 6
+        # leave room for the prompt/Continue button that sits at the bottom
+        limit = c.bottom - self.PAD - self.bold.get_linesize()
+        for row in rows:
+            for line in self._wrap(str(row), inner_w, self.font):
+                if y + self.font.get_linesize() > limit:
+                    return
+                self.screen.blit(self.font.render(line, True, self.TEXT), (x, y))
+                y += self.font.get_linesize()
 
     def _draw_action_and_prompt(self, action_label, prompt, mouse):
         c = self.control_rect

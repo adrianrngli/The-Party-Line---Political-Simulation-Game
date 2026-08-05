@@ -131,7 +131,7 @@ class Game:
             if player.party != proposing_party:
                 player.choose_bill_stance(proposed_bill)
         outcome = proposed_bill.try_to_pass()
-        self.interface.announce(outcome)
+        self.interface.show_result(str(proposed_bill), ["Outcome: " + outcome])
         if outcome == "Passed":
             self.nation.record_law(proposed_bill)
 
@@ -151,8 +151,7 @@ class Game:
             ui.announce()
         if not self.senate_elections.no_elections():
             ui.pause("Press enter to run senate elections. ")
-            self.senate_elections.run_elections()
-            ui.announce(self.nation.get_senate_totals())
+            self.senate_elections.run_elections()  # posts the result summary
             ui.set_map_colors(self.senate_elections.result_colors)
             ui.set_state_results(self.senate_elections.state_results)
             ui.pause("Senate results: click a state with a race to see its result. ")
@@ -161,8 +160,7 @@ class Game:
             ui.announce()
             if self.nation.year % 2 == 0:
                 ui.pause("Press enter to run house elections. ")
-                self.house_elections.run_elections()
-                ui.announce(self.nation.get_house_totals())
+                self.house_elections.run_elections()  # posts the result summary
                 ui.set_map_colors(self.house_elections.result_colors)
                 ui.set_state_results(self.house_elections.state_results)
                 ui.pause("House results: states colored where a party gained seats; click one for details. ")

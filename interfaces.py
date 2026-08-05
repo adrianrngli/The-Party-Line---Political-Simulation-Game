@@ -85,6 +85,19 @@ class GameInterface:
         for line in summary:
             self.announce(line)
 
+    def show_result(self, title, rows):
+        """Show a headline result summary that stays on screen while the player
+        reviews it -- e.g. an election's national totals -- as a clearly titled,
+        labeled block. This is reserved for important outcomes that aren't
+        available in any standing panel, so a graphical frontend can give it a
+        dedicated, well-formatted area instead of a scrolling feed. `title` names
+        the result; `rows` is a list of already-formatted lines. Default: print a
+        titled block."""
+        self.announce("")
+        self.announce(str(title))
+        for row in rows:
+            self.announce("  " + str(row))
+
     def pick_state(self, prompt, state_abbrevs, allow_quit=True, info=None):
         """Choose one of the given states (by abbreviation), or None if the
         player quits. `info` optionally maps each abbreviation to a line of
