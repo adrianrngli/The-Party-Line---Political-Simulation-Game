@@ -132,6 +132,9 @@ class Bill:
                 return self.run_presidential_decision()
             else:
                 if self.get_senate_vote() > 50:
+                    self.nation.interface.event(
+                        "Filibustered in the Senate",
+                        [str(self) + " died in the Senate."])
                     return "Stopped by filibuster"
                 else:
                     return "Failed Senate vote"
