@@ -144,13 +144,19 @@ class StateSenateElection(StateElection):
         for i in range(2):
             self.primary_candidates[nation.parties[i]] = []
             if (not outgoing.set_to_retire) and outgoing.party == nation.parties[i]:
-                general_candidates.append(outgoing)
                 self.primary_candidates[nation.parties[i]].append(outgoing)
             else:
-                general_candidates.append(Politician(nation.parties[i], state))
-                self.primary_candidates[nation.parties[i]].append(general_candidates[i])
+                self.primary_candidates[nation.parties[i]].append(Politician(nation.parties[i], state))
             for j in range(2):
                 self.primary_candidates[nation.parties[i]].append(Politician(nation.parties[i], state))
+        for i in range(2):
+            self.primary_candidates[nation.parties[i]].sort(key=lambda x: -x.stats["fame"].value)
+            for j in range(1, 3):
+                if self.primary_candidates[nation.parties[i]][j] == outgoing:
+                    self.primary_candidates[nation.parties[i]][j] = self.primary_candidates[nation.parties[i]][0]
+                    self.primary_candidates[nation.parties[i]][0] = outgoing
+                    break
+            general_candidates.append(self.primary_candidates[nation.parties[i]][0])
         super().__init__(state, nation, general_candidates)
         self.outgoing = outgoing
 
