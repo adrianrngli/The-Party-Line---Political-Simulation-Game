@@ -98,12 +98,19 @@ class GameInterface:
         for row in rows:
             self.announce("  " + str(row))
 
-    def pick_state(self, prompt, state_abbrevs, allow_quit=True, info=None):
+    def pick_state(self, prompt, state_abbrevs, allow_quit=True, info=None,
+                   locked=None):
         """Choose one of the given states (by abbreviation), or None if the
         player quits. `info` optionally maps each abbreviation to a line of
-        detail (e.g. race polling) a map frontend can surface on hover. Default:
-        a plain list via select(); a map frontend can override this."""
-        return self.select(prompt, list(state_abbrevs), allow_quit=allow_quit)
+        detail (e.g. race polling) a map frontend can surface on hover.
+        `locked` is an optional set of abbreviations the player may still
+        inspect but no longer edit (e.g. a race whose candidate is already
+        chosen); a frontend should show them as locked and not offer them for
+        selection. Default: a plain list of the still-editable states via
+        select(); a map frontend can override this."""
+        locked = set(locked or ())
+        selectable = [ab for ab in state_abbrevs if ab not in locked]
+        return self.select(prompt, selectable, allow_quit=allow_quit)
 
     def set_context(self, **fields):
         """Receive current game context (year, president, party, nation, ...)

@@ -140,7 +140,9 @@ class StateSenateElection(StateElection):
     def __init__(self, state, outgoing, nation):
         general_candidates = []
         self.primary_candidates = dict()
-        
+        self.locked = dict()
+        for party in nation.parties:
+            self.locked[party] = False
         for i in range(2):
             self.primary_candidates[nation.parties[i]] = []
             if (not outgoing.set_to_retire) and outgoing.party == nation.parties[i]:
@@ -267,6 +269,10 @@ class StateSenateElection(StateElection):
                 self.points.pop(self.general_candidates[i])
                 self.general_candidates[i] = nominee
                 self.points[nominee] = 0
+        self.locked[nominee.party] = True
+
+    def is_party_locked(self, party):
+        return self.locked[party]
 
     def __str__(self):
         election_header = ""

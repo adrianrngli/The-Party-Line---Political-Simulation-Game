@@ -59,17 +59,23 @@ class HumanPlayer(Player):
             states_with_races = [abbreviation
                                  for abbreviation, elections in senate_election.elections.items()
                                  if elections]
+            locked_states = {abbreviation
+                             for abbreviation in states_with_races
+                             if all(election.is_party_locked(self.party)
+                                    for election in senate_election.elections[abbreviation])}
             state_polling = senate_election.get_polling_by_state()
             state_choice = self.interface.pick_state(
-                "Senate elections: click a highlighted state to see its race and nominate your candidate — or Quit when you're done",
+                "Senate elections: click a highlighted state to nominate your candidate — locked states are already decided. Quit when you're done.",
                 states_with_races,
                 allow_quit=True,
                 info=state_polling,
+                locked=locked_states,
             )
             if state_choice is None:
                 return
             for election in senate_election.elections[state_choice]:
-                self.choose_senate_candidates(election)
+                if not election.is_party_locked(self.party):
+                    self.choose_senate_candidates(election)
 
     def choose_senate_candidates(self, election):
         issues = election.nation.issues

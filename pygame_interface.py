@@ -75,6 +75,7 @@ class PygameInterface(GameInterface):
         self._state_results = None # {abbrev: [lines]} of election results while showing them
         self._pick_states = None   # abbrevs selectable during pick_state (for the panel button)
         self._pick_info = None     # {abbrev: line} shown on hover during pick_state
+        self._pick_locked = set()  # abbrevs shown-but-locked during pick_state (already decided)
 
         # geometry
         self.header_rect = pygame.Rect(self.PAD, self.PAD,
@@ -187,12 +188,17 @@ class PygameInterface(GameInterface):
             pygame.display.flip()
             self.clock.tick(self.FPS)
 
-    def pick_state(self, prompt, state_abbrevs, allow_quit=True, info=None):
+    def pick_state(self, prompt, state_abbrevs, allow_quit=True, info=None,
+                   locked=None):
         """Let the player inspect ANY state's info, and choose one of
         `state_abbrevs` (via a button in that state's info panel). `info` maps
-        abbreviations to a detail line shown on hover. Returns the chosen
-        abbreviation, or None on quit."""
+        abbreviations to a detail line shown on hover. `locked` is a set of
+        abbreviations the player may still inspect but not choose (their race
+        is already decided) -- shown marked on the map and with a locked notice
+        instead of a choose button. Returns the chosen abbreviation, or None on
+        quit."""
         highlight = set(state_abbrevs)
+        self._pick_locked = set(locked or ())
         self.active_panel = None
         self._pick_states = highlight
         self._pick_info = info or {}
@@ -205,6 +211,7 @@ class PygameInterface(GameInterface):
                         self._shutdown()
                     elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                         if self.active_panel == "state" and self.panel_state in highlight \
+                                and self.panel_state not in self._pick_locked \
                                 and self._state_action_rect().collidepoint(event.pos):
                             self.active_panel = None
                             return self.panel_state
@@ -219,12 +226,16 @@ class PygameInterface(GameInterface):
                 self._render_dashboard(highlight=highlight, hover_state=hover, mouse=mouse)
                 self._draw_action_and_prompt("Quit" if allow_quit else None, prompt, mouse)
                 if hover in self._pick_info:
-                    self._draw_hover_info(hover, self._pick_info[hover])
+                    note = self._pick_info[hover]
+                    if hover in self._pick_locked:
+                        note += "   (candidate locked in)"
+                    self._draw_hover_info(hover, note)
                 pygame.display.flip()
                 self.clock.tick(self.FPS)
         finally:
             self._pick_states = None
             self._pick_info = None
+            self._pick_locked = set()
 
     def show_vote(self, title, summary, details=None):
         """Blocking vote modal: the final tally shows up front; individual
@@ -480,16 +491,21 @@ class PygameInterface(GameInterface):
             return self.BG
 
         def box_outline(ab):
-            if highlight is not None and ab in highlight:
+            if highlight is not None and ab in highlight and ab not in self._pick_locked:
                 return self.ACCENT_HOVER
             return self.MUTED
 
         self.screen.set_clip(self.map_rect)
         self.map.draw(self.screen, fill_for, outline_for, 1)
         if highlight:
-            self.map.draw(self.screen,
-                          lambda ab: None,
-                          lambda ab: self.ACCENT_HOVER if ab in highlight else None, 2)
+            # actionable races glow with the accent; locked (already-decided)
+            # races get a muted outline so they read as done, not clickable.
+            self.map.draw(
+                self.screen,
+                lambda ab: None,
+                lambda ab: (self.MUTED if ab in self._pick_locked else self.ACCENT_HOVER)
+                if ab in highlight else None,
+                2)
         self.map.draw_callouts(self.screen, fill_for, box_outline, self.font,
                                self.WHITE, self.MUTED)
         self.screen.set_clip(None)
@@ -595,12 +611,19 @@ class PygameInterface(GameInterface):
                     y += font.get_linesize()
         self.screen.set_clip(None)
 
-        # during a senate pick, a race state's panel offers a nominate button
+        # during a senate pick, a race state's panel offers a nominate button --
+        # unless its candidate is already chosen, in which case it shows a locked
+        # notice the player can't act on.
         if self._pick_states and self.active_panel == "state" \
                 and self.panel_state in self._pick_states:
             r = self._state_action_rect()
-            pygame.draw.rect(self.screen, self.ACCENT, r, border_radius=6)
-            surf = self.bold.render("Choose candidate", True, self.WHITE)
+            if self.panel_state in self._pick_locked:
+                pygame.draw.rect(self.screen, self.PANEL, r, border_radius=6)
+                pygame.draw.rect(self.screen, self.MUTED, r, 1, border_radius=6)
+                surf = self.bold.render("Candidate locked in", True, self.MUTED)
+            else:
+                pygame.draw.rect(self.screen, self.ACCENT, r, border_radius=6)
+                surf = self.bold.render("Choose candidate", True, self.WHITE)
             self.screen.blit(surf, (r.centerx - surf.get_width() // 2,
                                     r.centery - surf.get_height() // 2))
 
@@ -794,6 +817,8 @@ class PygameInterface(GameInterface):
         if race_poll:
             items.append("Senate race polling:")
             items.append("  " + str(race_poll))
+            if abbrev in self._pick_locked:
+                items.append("  Your candidate is locked in and can't be changed.")
             items.append("")
         results = (self._state_results or {}).get(abbrev)
         if results:
