@@ -147,7 +147,7 @@ class Nation:
                 state.governor.increment_year()
         self.update_presidential_hopefuls()
         self.industry_tracker.increment_year()
-        if self.year % 4 == 0:
+        if self.year % 4 == 3:
             self.update_issues()
 
         self._update_context()
@@ -172,8 +172,31 @@ class Nation:
         for issue in self.issues:
             if not issue.resolved:
                 new_issues.append(issue)
-        new_issues.extend(self.all_issues.generate_issues(4 - len(new_issues), self.issues))
+        has_economic_issue = False
+        for i in range(len(new_issues)):
+            if new_issues[i].type == "economic_stance":
+                has_economic_issue = True
+                break
+        if not has_economic_issue:
+            new_issues.extend(self.all_issues.generate_issues(1, self.get_center_points(), new_issues + self.issues, axis="economic_stance"))
+        has_foreign_issue = False
+        for i in range(len(new_issues)):
+            if new_issues[i].type == "foreign_stance":
+                has_foreign_issue = True
+                break
+        if not has_foreign_issue:
+            new_issues.extend(self.all_issues.generate_issues(1, self.get_center_points(), new_issues + self.issues, axis="foreign_stance"))
+        has_social_issue = False
+        for i in range(len(new_issues)):
+            if new_issues[i].type == "social_stance":
+                has_social_issue = True
+                break
+        if not has_social_issue:
+            new_issues.extend(self.all_issues.generate_issues(1, self.get_center_points(), new_issues + self.issues, axis="social_stance"))
+        new_issues.extend(self.all_issues.generate_issues(4 - len(new_issues), self.get_center_points(), new_issues + self.issues))
         self.issues = new_issues
+        for issue in self.issues:
+            issue.resolved = False
 
     def get_senate_composition(self):
         """Returns a dictionary mapping each party to the amount of senate seats they have"""
@@ -353,3 +376,9 @@ class Nation:
                     new_presidential_hopefuls[party].append(self.president)
                 
         self.presidential_hopefuls = new_presidential_hopefuls
+
+    def get_center_points(self):
+        center_points = dict()
+        for axis in ["economic_stance", "foreign_stance", "social_stance"]:
+            center_points[axis] = (self.parties[0].stats[axis].value + self.parties[1].stats[axis].value)/2
+        return center_points

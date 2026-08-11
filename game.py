@@ -22,7 +22,7 @@ class Game:
         self.republicans = Party("Republican", 'R')
         self.republicans.set_political_stances(45, 65, 70)
         self.all_issues = AllIssues()
-        initial_issues = self.all_issues.generate_issues(4)
+        initial_issues = self.all_issues.generate_issues(4, {"economic_stance": 40, "foreign_stance": 65, "social_stance": 67.5})
 
         self.players = self._create_players()
         for player in self.players:
@@ -78,7 +78,7 @@ class Game:
         self.interface.pause("Press enter to advance year ")
         self.interface.announce()
         self.nation.increment_year()
-        if self.nation.year % 4 == 0:
+        if self.nation.year % 4 == 3:
             for player in self.players:
                 player.set_platform(self.nation.issues)
 

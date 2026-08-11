@@ -1,6 +1,7 @@
 import json
 from statholder import StatHolder
 from pollstats import PollStat
+import random
 
 class Stance(PollStat):
     """Represents a stance on an issue. Each stance has a value for its associated type."""
@@ -61,12 +62,10 @@ class AllIssues:
     def new_issue(self):
         return self.issues[0]
     
-    def generate_issues(self, num, current_issues=[]):
-        generated_issues = []
+    def generate_issues(self, num, center_points, current_issues=[], axis = None):
+        valid_issues = []
         for issue in self.issues:
-            if len(generated_issues) >= num:
-                break
-            if issue not in current_issues:
-                issue.resolved = False
-                generated_issues.append(issue)
-        return generated_issues
+            if axis == None or issue.type == axis:
+                if issue.min_value <= center_points[issue.type] and issue.max_value >= center_points[issue.type]:
+                    valid_issues.append(issue)
+        return random.sample(valid_issues, num)
