@@ -193,7 +193,9 @@ class Nation:
                 break
         if not has_social_issue:
             new_issues.extend(self.all_issues.generate_issues(1, self.get_center_points(), new_issues + self.issues, axis="social_stance"))
-        new_issues.extend(self.all_issues.generate_issues(4 - len(new_issues), self.get_center_points(), new_issues + self.issues))
+        # the issues carried over, plus the one added per uncovered axis above,
+        # can already fill the slate -- then there is no room left to draw for
+        new_issues.extend(self.all_issues.generate_issues(max(0, 4 - len(new_issues)), self.get_center_points(), new_issues + self.issues))
         self.issues = new_issues
         for issue in self.issues:
             issue.resolved = False
