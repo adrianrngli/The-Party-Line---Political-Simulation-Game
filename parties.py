@@ -18,6 +18,10 @@ class Party(StatHolder):
         self.set_stat("social_stance", social_stance)
 
     def set_platform(self, platform):
+        """Adopt a platform and re-derive each axis from the stances it contains.
+        An axis the platform says nothing about keeps its current value: the
+        issues of the day cover the axes unevenly, and a silent platform means
+        the party hasn't moved on that axis, not that it has swung to zero."""
         self.platform = platform
         for axis in ["economic_stance", "foreign_stance", "social_stance"]:
             issue_count = 0
@@ -27,8 +31,7 @@ class Party(StatHolder):
                     issue_count += 1
                     average_position += platform[issue].value
             if issue_count != 0:
-                average_position /= issue_count
-            self.set_stat(axis, average_position)
+                self.set_stat(axis, average_position / issue_count)
 
     def get_stance(self, issue):
         return self.platform[issue]

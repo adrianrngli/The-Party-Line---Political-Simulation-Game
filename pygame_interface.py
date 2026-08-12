@@ -7,8 +7,8 @@ pygame event loop -- pumping events, redrawing, and ticking the clock -- until
 the player acts.
 
 The layout is a persistent dashboard: a header, a clickable US map in the
-center, a side button bar (National / Polling panels), and a bottom control
-strip. The map is the "home" view during pause() and pick_state(); list/card
+center, a side button bar (Nation / Polling / President / Parties panels), and
+a bottom control strip. The map is the "home" view during pause() and pick_state(); list/card
 pickers (candidate/stance/party selection, confirmations) appear in the control
 strip with the map still visible above. There is no scrolling text log --
 running narration surfaces through the panels plus a small transient status
@@ -69,7 +69,7 @@ class PygameInterface(GameInterface):
         self.polls = {}            # issue title -> [(label, pct), ...]
         self.result_summary = None # (title, [rows]) headline result shown in the control strip
         self._capture = None       # when a list, output is diverted to build cards
-        self.active_panel = None   # None | "national" | "polling" | "state"
+        self.active_panel = None   # None | "national" | "polling" | "president" | "platforms" | "state"
         self.panel_state = None    # abbrev when active_panel == "state"
         self._map_colors = None    # {abbrev: party letter} while showing results
         self._state_results = None # {abbrev: [lines]} of election results while showing them
@@ -800,9 +800,34 @@ class PygameInterface(GameInterface):
             for issue in n.issues:
                 items.append("  " + str(issue) + ": " + str(p.get_stance(issue)))
             return items
+        if self.active_panel == "platforms":
+            return self._platform_panel_items()
         if self.active_panel == "state":
             return self._state_panel_items(self.panel_state)
         return [""]
+
+    def _platform_panel_items(self):
+        """Every party's current platform: its adopted stance on each live issue.
+        Platforms are re-chosen only every four years, so an issue that has come
+        along since is shown as having no position yet rather than being silently
+        dropped."""
+        n = self.nation
+        items = ["Party Platforms", ""]
+        player_party = self.context.get("party")
+        for party in n.parties:
+            heading = str(party)
+            if getattr(party, "letter", None):
+                heading += " (" + party.letter + ")"
+            if party is player_party:
+                heading += "  -- yours"
+            items.append(heading)
+            platform = party.platform or {}
+            for issue in n.issues:
+                stance = platform.get(issue)
+                items.append("  " + str(issue) + ": "
+                             + (str(stance) if stance is not None else "(no position yet)"))
+            items.append("")
+        return items
 
     def _state_panel_items(self, abbrev):
         """Build a state's info card content from live nation data."""
@@ -879,8 +904,10 @@ class PygameInterface(GameInterface):
         national = pygame.Rect(bar.x + 8, bar.y + 8, w, 40)
         polling = pygame.Rect(bar.x + 8, national.bottom + 8, w, 40)
         president = pygame.Rect(bar.x + 8, polling.bottom + 8, w, 40)
-        return [("National", "national", national), ("Polling", "polling", polling),
-                ("President", "president", president)]
+        platforms = pygame.Rect(bar.x + 8, president.bottom + 8, w, 40)
+        return [("Nation", "national", national), ("Polling", "polling", polling),
+                ("President", "president", president),
+                ("Parties", "platforms", platforms)]
 
     def _action_rect(self):
         c = self.control_rect
