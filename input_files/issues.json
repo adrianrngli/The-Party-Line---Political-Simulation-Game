@@ -129,9 +129,9 @@
         ]
     },
     {
-        "name": "Foreign Aid",
+        "name": "Foreign aid",
         "type": "foreign_stance",
-        "min_value": 30,
+        "min_value": 20,
         "max_value": 80,
         "stances": [
             {
@@ -205,6 +205,1338 @@
                 "value": 80,
                 "moderate": false,
                 "industry_effects": {}
+            }
+        ]
+    },
+    {
+        "name": "Space travel",
+        "type": "foreign_stance",
+        "min_value": 30,
+        "max_value": 100,
+        "stances": [
+            {
+                "name": "Cut Space Travel Funding",
+                "value": 40,
+                "moderate": true,
+                "industry_effects": {
+                    "public_sector": -4
+                }
+            },
+            {
+                "name": "Increase Space Travel Funding",
+                "value": 60,
+                "moderate": true,
+                "industry_effects": {
+                    "public_sector": 4
+                }
+            }
+        ]
+    },
+    {
+        "name": "Unions",
+        "type": "economic_stance",
+        "min_value": 20,
+        "max_value": 80,
+        "stances": [
+            {
+                "name": "Strengthening Unions",
+                "value": 40,
+                "moderate": false,
+                "industry_effects": {}
+            },
+            {
+                "name": "Regulating Unions",
+                "value": 60,
+                "moderate": false,
+                "industry_effects": {}
+            }
+        ]
+    },
+    {
+        "name": "Welfare",
+        "type": "economic_stance",
+        "min_value": 50,
+        "max_value": 80,
+        "stances": [
+            {
+                "name": "Increase Welfare",
+                "value": 30,
+                "moderate": false,
+                "industry_effects": {
+                    "public_sector": 3
+                }
+            },
+            {
+                "name": "Welfare Reform",
+                "value": 55,
+                "moderate": false,
+                "industry_effects": {
+                    "public_sector": -3
+                }
+            },
+            {
+                "name": "Cut Welfare",
+                "value": 70,
+                "moderate": false,
+                "industry_effects": {
+                    "public_sector": -5
+                }
+            }
+        ]
+    },
+    {
+        "name": "Gay marriage",
+        "type": "social_stance",
+        "min_value": 30,
+        "max_value": 75,
+        "stances": [
+            {
+                "name": "Legalize Gay Marriage",
+                "value": 30,
+                "moderate": false,
+                "industry_effects": {}
+            },
+            {
+                "name": "Civil Unions",
+                "value": 50,
+                "moderate": true,
+                "industry_effects": {}
+            },
+            {
+                "name": "Ban Gay Marriage",
+                "value": 70,
+                "moderate": false,
+                "industry_effects": {}
+            }
+        ]
+    },
+    {
+        "name": "Abortion",
+        "type": "social_stance",
+        "min_value": 30,
+        "max_value": 75,
+        "stances": [
+            {
+                "name": "Legalize Abortion",
+                "value": 30,
+                "moderate": false,
+                "industry_effects": {}
+            },
+            {
+                "name": "State Control",
+                "value": 50,
+                "moderate": true,
+                "industry_effects": {}
+            },
+            {
+                "name": "Ban Abortion",
+                "value": 70,
+                "moderate": false,
+                "industry_effects": {}
+            }
+        ]
+    },
+    {
+        "name": "Defense funding",
+        "type": "foreign_stance",
+        "min_value": 0,
+        "max_value": 100,
+        "stances": [
+            {
+                "name": "Cut Defense Funding",
+                "value": 45,
+                "moderate": false,
+                "industry_effects": {
+                    "manufacturing": -5,
+                    "professional_services": -3,
+                    "public_sector": -10
+                }
+            },
+            {
+                "name": "Maintain Defense Funding",
+                "value": 55,
+                "moderate": true,
+                "industry_effects": {}
+            },
+            {
+                "name": "Increase Defense Funding",
+                "value": 70,
+                "moderate": true,
+                "industry_effects": {
+                    "manufacturing": 5,
+                    "professional_services": 3,
+                    "public_sector": 7
+                }
+            }
+        ]
+    },
+    {
+        "name": "Education",
+        "type": "economic_stance",
+        "min_value": 0,
+        "max_value": 100,
+        "stances": [
+            {
+                "name": "Increase Education Funding",
+                "value": 30,
+                "moderate": false,
+                "industry_effects": {
+                    "professional_services": 3,
+                    "public_sector": 4
+                }
+            },
+            {
+                "name": "Cut Education Funding",
+                "value": 70,
+                "moderate": false,
+                "industry_effects": {
+                    "professional_services": -4,
+                    "public_sector": -4
+                }
+            }
+        ]
+    },
+    {
+        "name": "Foreign military aid",
+        "type": "foreign_stance",
+        "min_value": 45,
+        "max_value": 100,
+        "stances": [
+            {
+                "name": "Cut Foreign Military Support",
+                "value": 30,
+                "moderate": true,
+                "industry_effects": {
+                    "manufacturing": -3,
+                    "public_sector": -6
+                }
+            },
+            {
+                "name": "Increase Foreign Military Support",
+                "value": 70,
+                "moderate": true,
+                "industry_effects": {
+                    "manufacturing": 3,
+                    "public_sector": 3
+                }
+            }
+        ]
+    },
+    {
+        "name": "Employment discrimination",
+        "type": "social_stance",
+        "min_value": 50,
+        "max_value": 85,
+        "stances": [
+            {
+                "name": "Equal Employment Opportunities",
+                "value": 50,
+                "moderate": false,
+                "industry_effects": {}
+            },
+            {
+                "name": "Employer Choice",
+                "value": 70,
+                "moderate": false,
+                "industry_effects": {}
+            }
+        ]
+    },
+    {
+        "name": "Infrastructure",
+        "type": "economic_stance",
+        "min_value": 0,
+        "max_value": 100,
+        "stances": [
+            {
+                "name": "New Infrastructure Construction",
+                "value": 35,
+                "moderate": false,
+                "industry_effects": {
+                    "manufacturing": 13
+                }
+            },
+            {
+                "name": "Infrastructure Renewal",
+                "value": 45,
+                "moderate": false,
+                "industry_effects": {
+                    "manufacturing": 9
+                }
+            },
+            {
+                "name": "Cut Infrastructure Funding",
+                "value": 65,
+                "moderate": false,
+                "industry_effects": {
+                    "manufacturing": -5
+                }
+            }
+        ]
+    },
+    {
+        "name": "Housing discrimination",
+        "type": "social_stance",
+        "min_value": 50,
+        "max_value": 80,
+        "stances": [
+            {
+                "name": "Ban Housing Discrimination",
+                "value": 50,
+                "moderate": false,
+                "industry_effects": {}
+            },
+            {
+                "name": "Legal Housing Discrimination",
+                "value": 70,
+                "moderate": false,
+                "industry_effects": {}
+            }
+        ]
+    },
+    {
+        "name": "Fossil fuel regulation",
+        "type": "economic_stance",
+        "min_value": 20,
+        "max_value": 65,
+        "stances": [
+            {
+                "name": "Fossil Fuel Ban",
+                "value": 20,
+                "moderate": false,
+                "industry_effects": {
+                    "manufacturing": -15
+                }
+            },
+            {
+                "name": "Carbon Tax",
+                "value": 45,
+                "moderate": true,
+                "industry_effects": {
+                    "manufacturing": -3
+                }
+            },
+            {
+                "name": "Fossil Fuel Deregulation",
+                "value": 70,
+                "moderate": true,
+                "industry_effects": {
+                    "manufacturing": 4
+                }
+            }
+        ]
+    },
+    {
+        "name": "International climate cooperation",
+        "type": "foreign_stance",
+        "min_value": 30,
+        "max_value": 75,
+        "stances": [
+            {
+                "name": "Withdraw from International Climate Cooperation",
+                "value": 35,
+                "moderate": true,
+                "industry_effects": {
+                    "manufacturing": 2
+                }
+            },
+            {
+                "name": "Pro International Climate Cooperation",
+                "value": 55,
+                "moderate": true,
+                "industry_effects": {
+                    "manufacturing": -2
+                }
+            }
+        ]
+    },
+    {
+        "name": "Pollution",
+        "type": "economic_stance",
+        "min_value": 0,
+        "max_value": 65,
+        "stances": [
+            {
+                "name": "Pollution Regulations",
+                "value": 45,
+                "moderate": true,
+                "industry_effects": {
+                    "manufacturing": -6
+                }
+            },
+            {
+                "name": "Pollution Deregulation",
+                "value": 60,
+                "moderate": false,
+                "industry_effects": {
+                    "manufacturing": 7
+                }
+            }
+        ]
+    },
+    {
+        "name": "Farm subsidies",
+        "type": "economic_stance",
+        "min_value": 0,
+        "max_value": 80,
+        "stances": [
+            {
+                "name": "Increase Farm Subsidies",
+                "value": 35,
+                "moderate": false,
+                "industry_effects": {
+                    "agriculture": 8
+                }
+            },
+            {
+                "name": "Decrease Farm Subsidies",
+                "value": 65,
+                "moderate": false,
+                "industry_effects": {
+                    "agriculture": -8
+                }
+            }
+        ]
+    },
+    {
+        "name": "Prohibition",
+        "type": "social_stance",
+        "min_value": 70,
+        "max_value": 100,
+        "stances": [
+            {
+                "name": "Legal Alcohol",
+                "value": 70,
+                "moderate": true,
+                "industry_effects": {}
+            },
+            {
+                "name": "Prohibition",
+                "value": 85,
+                "moderate": false,
+                "industry_effects": {
+                    "agriculture": -3,
+                    "manufacturing": -7,
+                    "public_sector": 3
+                }
+            }
+        ]
+    },
+    {
+        "name": "Housing affordability",
+        "type": "economic_stance",
+        "min_value": 20,
+        "max_value": 75,
+        "stances": [
+            {
+                "name": "New Public Housing Projects",
+                "value": 30,
+                "moderate": false,
+                "industry_effects": {
+                    "manufacturing": 5,
+                    "public_sector": 5
+                }
+            },
+            {
+                "name": "Home Buyer Loans",
+                "value": 40,
+                "moderate": false,
+                "industry_effects": {}
+            },
+            {
+                "name": "Home Buying Tax Credits",
+                "value": 50,
+                "moderate": true,
+                "industry_effects": {}
+            },
+            {
+                "name": "Housing Construction Deregulation",
+                "value": 70,
+                "moderate": true,
+                "industry_effects": {
+                    "manufacturing": 5,
+                    "professional_services": 5
+                }
+            }
+        ]
+    },
+    {
+        "name": "Food assistance",
+        "type": "economic_stance",
+        "min_value": 20,
+        "max_value": 70,
+        "stances": [
+            {
+                "name": "Increase Food Stamps",
+                "value": 30,
+                "moderate": false,
+                "industry_effects": {}
+            },
+            {
+                "name": "Cut Food Stamps",
+                "value": 60,
+                "moderate": false,
+                "industry_effects": {}
+            },
+            {
+                "name": "End Food Assistance/Stamps",
+                "value": 70,
+                "moderate": false,
+                "industry_effects": {
+                    "public_sector": -3
+                }
+            }
+        ]
+    },
+    {
+        "name": "Guns",
+        "type": "social_stance",
+        "min_value": 0,
+        "max_value": 100,
+        "stances": [
+            {
+                "name": "Gun Control",
+                "value": 50,
+                "moderate": true,
+                "industry_effects": {}
+            },
+            {
+                "name": "Gun Rights",
+                "value": 60,
+                "moderate": true,
+                "industry_effects": {}
+            }
+        ]
+    },
+    {
+        "name": "Renewable energy",
+        "type": "economic_stance",
+        "min_value": 30,
+        "max_value": 75,
+        "stances": [
+            {
+                "name": "Increase Renewable Energy Subsidies",
+                "value": 45,
+                "moderate": true,
+                "industry_effects": {
+                    "manufacturing": 5
+                }
+            },
+            {
+                "name": "Lower Renewable Energy Subsidies",
+                "value": 70,
+                "moderate": true,
+                "industry_effects": {
+                    "manufacturing": -5
+                }
+            }
+        ]
+    },
+    {
+        "name": "Affirmative action",
+        "type": "social_stance",
+        "min_value": 30,
+        "max_value": 70,
+        "stances": [
+            {
+                "name": "Pro Affirmative Action",
+                "value": 45,
+                "moderate": true,
+                "industry_effects": {}
+            },
+            {
+                "name": "Anti Affirmative Action",
+                "value": 60,
+                "moderate": true,
+                "industry_effects": {}
+            }
+        ]
+    },
+    {
+        "name": "Racial busing",
+        "type": "social_stance",
+        "min_value": 45,
+        "max_value": 65,
+        "stances": [
+            {
+                "name": "Pro Busing",
+                "value": 50,
+                "moderate": false,
+                "industry_effects": {}
+            },
+            {
+                "name": "Anti Busing",
+                "value": 65,
+                "moderate": false,
+                "industry_effects": {}
+            }
+        ]
+    },
+    {
+        "name": "Intelligence funding",
+        "type": "foreign_stance",
+        "min_value": 0,
+        "max_value": 100,
+        "stances": [
+            {
+                "name": "Cut Intelligence Funding",
+                "value": 40,
+                "moderate": true,
+                "industry_effects": {
+                    "professional_services": -4,
+                    "public_sector": -9
+                }
+            },
+            {
+                "name": "Maintain Intelligence Funding",
+                "value": 60,
+                "moderate": true,
+                "industry_effects": {}
+            },
+            {
+                "name": "Increase Intelligence Funding",
+                "value": 70,
+                "moderate": true,
+                "industry_effects": {
+                    "professional_services": 3,
+                    "public_sector": 5
+                }
+            }
+        ]
+    },
+    {
+        "name": "Foreign arms deals",
+        "type": "foreign_stance",
+        "min_value": 40,
+        "max_value": 100,
+        "stances": [
+            {
+                "name": "Limit Arms Trading",
+                "value": 45,
+                "moderate": true,
+                "industry_effects": {
+                    "manufacturing": -3
+                }
+            },
+            {
+                "name": "Increase Arms Trading",
+                "value": 70,
+                "moderate": true,
+                "industry_effects": {
+                    "manufacturing": 3
+                }
+            }
+        ]
+    },
+    {
+        "name": "Corporate taxes",
+        "type": "economic_stance",
+        "min_value": 20,
+        "max_value": 100,
+        "stances": [
+            {
+                "name": "High Corporate Taxes",
+                "value": 30,
+                "moderate": true,
+                "industry_effects": {
+                    "professional_services": -5
+                }
+            },
+            {
+                "name": "Moderate Corporate Taxes",
+                "value": 50,
+                "moderate": true,
+                "industry_effects": {}
+            },
+            {
+                "name": "Low Corporate Taxes",
+                "value": 70,
+                "moderate": true,
+                "industry_effects": {
+                    "professional_services": 5
+                }
+            }
+        ]
+    },
+    {
+        "name": "International health collaboration",
+        "type": "foreign_stance",
+        "min_value": 0,
+        "max_value": 100,
+        "stances": [
+            {
+                "name": "Withdraw from International Health Collaboration",
+                "value": 30,
+                "moderate": true,
+                "industry_effects": {
+                    "professional_services": -5
+                }
+            },
+            {
+                "name": "Increased International Health Collaboration",
+                "value": 70,
+                "moderate": false,
+                "industry_effects": {}
+            }
+        ]
+    },
+    {
+        "name": "Sanctions",
+        "type": "foreign_stance",
+        "min_value": 0,
+        "max_value": 100,
+        "stances": [
+            {
+                "name": "Decreased Sanctions on Adversaries",
+                "value": 50,
+                "moderate": true,
+                "industry_effects": {
+                    "manufacturing": 3
+                }
+            },
+            {
+                "name": "Increased Sanctions on Adversaries",
+                "value": 60,
+                "moderate": true,
+                "industry_effects": {
+                    "manufacturing": -3
+                }
+            }
+        ]
+    },
+    {
+        "name": "Oil Drilling",
+        "type": "economic_stance",
+        "min_value": 20,
+        "max_value": 80,
+        "stances": [
+            {
+                "name": "Ban Domestic Oil Drilling",
+                "value": 20,
+                "moderate": false,
+                "industry_effects": {
+                    "manufacturing": -12
+                }
+            },
+            {
+                "name": "Increase Oil Drilling Regulation",
+                "value": 35,
+                "moderate": true,
+                "industry_effects": {
+                    "manufacturing": -5
+                }
+            },
+            {
+                "name": "Deregulate Oil Drilling",
+                "value": 66,
+                "moderate": true,
+                "industry_effects": {
+                    "manufacturing": 5
+                }
+            }
+        ]
+    },
+    {
+        "name": "Weapons research funding",
+        "type": "foreign_stance",
+        "min_value": 20,
+        "max_value": 100,
+        "stances": [
+            {
+                "name": "Cut Weapons Research Funding",
+                "value": 45,
+                "moderate": true,
+                "industry_effects": {
+                    "professional_services": -3,
+                    "public_sector": -5
+                }
+            },
+            {
+                "name": "Increase Weapons Research Funding",
+                "value": 70,
+                "moderate": true,
+                "industry_effects": {
+                    "professional_services": 3,
+                    "public_sector": 5
+                }
+            }
+        ]
+    },
+    {
+        "name": "Financial regulation",
+        "type": "economic_stance",
+        "min_value": 15,
+        "max_value": 80,
+        "stances": [
+            {
+                "name": "Stricter Financial regulation",
+                "value": 30,
+                "moderate": true,
+                "industry_effects": {
+                    "professional_services": -5
+                }
+            },
+            {
+                "name": "Financial Deregulation",
+                "value": 60,
+                "moderate": true,
+                "industry_effects": {
+                    "professional_services": 5
+                }
+            }
+        ]
+    },
+    {
+        "name": "The Federal Reserve",
+        "type": "economic_stance",
+        "min_value": 70,
+        "max_value": 100,
+        "stances": [
+            {
+                "name": "Preserve the Federal Reserve",
+                "value": 70,
+                "moderate": true,
+                "industry_effects": {}
+            },
+            {
+                "name": "Abolish the Federal Reserve",
+                "value": 90,
+                "moderate": false,
+                "industry_effects": {}
+            }
+        ]
+    },
+    {
+        "name": "Disability accomodations",
+        "type": "social_stance",
+        "min_value": 20,
+        "max_value": 100,
+        "stances": [
+            {
+                "name": "Required Disability Accomodations",
+                "value": 40,
+                "moderate": true,
+                "industry_effects": {}
+            },
+            {
+                "name": "Anti Disability Accomodationsw",
+                "value": 80,
+                "moderate": false,
+                "industry_effects": {}
+            }
+        ]
+    },
+    {
+        "name": "Free trade agreements",
+        "type": "foreign_stance",
+        "min_value": 0,
+        "max_value": 100,
+        "stances": [
+            {
+                "name": "Anti Free Trade Agreements",
+                "value": 40,
+                "moderate": false,
+                "industry_effects": {
+                    "agriculture": 2,
+                    "manufacturing": 2,
+                    "professional_services": -3
+                }
+            },
+            {
+                "name": "Pro Free Trade Agreements",
+                "value": 50,
+                "moderate": false,
+                "industry_effects": {
+                    "agriculture": -3,
+                    "manufacturing": -3,
+                    "professional_services": 8
+                }
+            }
+        ]
+    },
+    {
+        "name": "Immigration",
+        "type": "social_stance",
+        "min_value": 0,
+        "max_value": 100,
+        "stances": [
+            {
+                "name": "Open Borders",
+                "value": 10,
+                "moderate": false,
+                "industry_effects": {
+                    "agriculture": 10,
+                    "manufacturing": 8,
+                    "professional_services": 6
+                }
+            },
+            {
+                "name": "Increased Pathways to Citizenship",
+                "value": 40,
+                "moderate": false,
+                "industry_effects": {
+                    "agriculture": 5,
+                    "manufacturing": 5,
+                    "professional_services": 3
+                }
+            },
+            {
+                "name": "Stricter Border Security",
+                "value": 60,
+                "moderate": false,
+                "industry_effects": {
+                    "agriculture": -3,
+                    "manufacturing": -3,
+                    "public_sector": 4
+                }
+            },
+            {
+                "name": "Fixed Immigration Quotas",
+                "value": 80,
+                "moderate": false,
+                "industry_effects": {
+                    "agriculture": -7,
+                    "manufacturing": -7,
+                    "professional_services": -5
+                }
+            },
+            {
+                "name": "Ban All Immigration",
+                "value": 100,
+                "moderate": false,
+                "industry_effects": {
+                    "agriculture": -13,
+                    "manufacturing": -10,
+                    "professional_services": -7
+                }
+            }
+        ]
+    },
+    {
+        "name": "Stem cell research",
+        "type": "social_stance",
+        "min_value": 40,
+        "max_value": 100,
+        "stances": [
+            {
+                "name": "Legal Stem Cell Research",
+                "value": 45,
+                "moderate": true,
+                "industry_effects": {
+                    "professional_services": 3
+                }
+            },
+            {
+                "name": "Ban Stem Cell Research",
+                "value": 70,
+                "moderate": true,
+                "industry_effects": {
+                    "professional_services": -2
+                }
+            }
+        ]
+    },
+    {
+        "name": "Torture",
+        "type": "social_stance",
+        "min_value": 40,
+        "max_value": 100,
+        "stances": [
+            {
+                "name": "Ban Torture in Interrogation",
+                "value": 45,
+                "moderate": true,
+                "industry_effects": {}
+            },
+            {
+                "name": "Legal Torture in Interrogation",
+                "value": 70,
+                "moderate": true,
+                "industry_effects": {}
+            }
+        ]
+    },
+    {
+        "name": "The Death Penalty",
+        "type": "social_stance",
+        "min_value": 30,
+        "max_value": 100,
+        "stances": [
+            {
+                "name": "Ban the Death Penalty",
+                "value": 40,
+                "moderate": true,
+                "industry_effects": {}
+            },
+            {
+                "name": "Legal Death Penalty",
+                "value": 70,
+                "moderate": true,
+                "industry_effects": {}
+            }
+        ]
+    },
+    {
+        "name": "Marijuana",
+        "type": "social_stance",
+        "min_value": 30,
+        "max_value": 75,
+        "stances": [
+            {
+                "name": "Legalize Marijuana",
+                "value": 40,
+                "moderate": false,
+                "industry_effects": {
+                    "agriculture": 4
+                }
+            },
+            {
+                "name": "State Control",
+                "value": 50,
+                "moderate": true,
+                "industry_effects": {}
+            },
+            {
+                "name": "Ban Marijuana",
+                "value": 60,
+                "moderate": false,
+                "industry_effects": {
+                    "agriculture": -4
+                }
+            }
+        ]
+    },
+    {
+        "name": "Police",
+        "type": "social_stance",
+        "min_value": 20,
+        "max_value": 80,
+        "stances": [
+            {
+                "name": "Defund the Police",
+                "value": 30,
+                "moderate": false,
+                "industry_effects": {
+                    "public_sector": -4
+                }
+            },
+            {
+                "name": "Police Reform",
+                "value": 45,
+                "moderate": false,
+                "industry_effects": {}
+            },
+            {
+                "name": "Increase Police Funding",
+                "value": 60,
+                "moderate": true,
+                "industry_effects": {
+                    "public_sector": 5
+                }
+            }
+        ]
+    },
+    {
+        "name": "Transgender rights",
+        "type": "social_stance",
+        "min_value": 0,
+        "max_value": 50,
+        "stances": [
+            {
+                "name": "Pro Transgender Rights",
+                "value": 25,
+                "moderate": false,
+                "industry_effects": {}
+            },
+            {
+                "name": "Anti Transgender Rights",
+                "value": 60,
+                "moderate": false,
+                "industry_effects": {}
+            }
+        ]
+    },
+    {
+        "name": "Maternity leave",
+        "type": "social_stance",
+        "min_value": 30,
+        "max_value": 60,
+        "stances": [
+            {
+                "name": "Paid Maternity Leave",
+                "value": 40,
+                "moderate": false,
+                "industry_effects": {}
+            },
+            {
+                "name": "Protected Unpaid Maternity Leave",
+                "value": 55,
+                "moderate": false,
+                "industry_effects": {}
+            },
+            {
+                "name": "No Maternity Leave",
+                "value": 75,
+                "moderate": false,
+                "industry_effects": {}
+            }
+        ]
+    },
+    {
+        "name": "Unsafe Labor Conditions",
+        "type": "economic_stance",
+        "min_value": 40,
+        "max_value": 90,
+        "stances": [
+            {
+                "name": "More Unsafe Labor Conditions Regulation",
+                "value": 50,
+                "moderate": false,
+                "industry_effects": {
+                    "manufacturing": -5
+                }
+            },
+            {
+                "name": "Looser Labor Conditions Regulation",
+                "value": 70,
+                "moderate": false,
+                "industry_effects": {
+                    "manufacturing": 5
+                }
+            }
+        ]
+    },
+    {
+        "name": "Food Standards",
+        "type": "economic_stance",
+        "min_value": 60,
+        "max_value": 100,
+        "stances": [
+            {
+                "name": "Stricter Food Standards",
+                "value": 55,
+                "moderate": false,
+                "industry_effects": {
+                    "agriculture": -3,
+                    "manufacturing": -5
+                }
+            },
+            {
+                "name": "Less Food Regulation",
+                "value": 70,
+                "moderate": true,
+                "industry_effects": {
+                    "agriculture": 5,
+                    "manufacturing": 6
+                }
+            }
+        ]
+    },
+    {
+        "name": "Minimum wage",
+        "type": "economic_stance",
+        "min_value": 20,
+        "max_value": 60,
+        "stances": [
+            {
+                "name": "Universal Basic Income",
+                "value": 15,
+                "moderate": false,
+                "industry_effects": {
+                    "agriculture": -4,
+                    "manufacturing": -4,
+                    "professional_services": -4
+                }
+            },
+            {
+                "name": "Higher Minimum Wage",
+                "value": 35,
+                "moderate": false,
+                "industry_effects": {
+                    "agriculture": -1,
+                    "manufacturing": -1,
+                    "professional_services": -1
+                }
+            },
+            {
+                "name": "Maintain the Minimum Wage",
+                "value": 50,
+                "moderate": true,
+                "industry_effects": {}
+            },
+            {
+                "name": "Lower the Minimum Wage",
+                "value": 70,
+                "moderate": false,
+                "industry_effects": {
+                    "agriculture": 1,
+                    "manufacturing": 1,
+                    "professional_services": 1
+                }
+            },
+            {
+                "name": "No Minimum Wage",
+                "value": 85,
+                "moderate": false,
+                "industry_effects": {
+                    "agriculture": 3,
+                    "manufacturing": 3,
+                    "professional_services": 3
+                }
+            }
+        ]
+    },
+    {
+        "name": "Work hours",
+        "type": "economic_stance",
+        "min_value": 40,
+        "max_value": 80,
+        "stances": [
+            {
+                "name": "32 Hour Work Week",
+                "value": 30,
+                "moderate": false,
+                "industry_effects": {
+                    "agriculture": -2,
+                    "manufacturing": -2,
+                    "professional_services": -2
+                }
+            },
+            {
+                "name": "40 Hour Work Week",
+                "value": 50,
+                "moderate": false,
+                "industry_effects": {}
+            },
+            {
+                "name": "No Work Hour Limit",
+                "value": 80,
+                "moderate": false,
+                "industry_effects": {
+                    "agriculture": 4,
+                    "manufacturing": 4,
+                    "professional_services": 4
+                }
+            }
+        ]
+    },
+    {
+        "name": "Child Labor",
+        "type": "social_stance",
+        "min_value": 70,
+        "max_value": 100,
+        "stances": [
+            {
+                "name": "Ban Child Labor",
+                "value": 30,
+                "moderate": false,
+                "industry_effects": {
+                    "agriculture": -4,
+                    "manufacturing": -4
+                }
+            },
+            {
+                "name": "Legal Child Labor",
+                "value": 70,
+                "moderate": false,
+                "industry_effects": {
+                    "agriculture": 4,
+                    "manufacturing": 4
+                }
+            }
+        ]
+    },
+    {
+        "name": "Drugs",
+        "type": "social_stance",
+        "min_value": 10,
+        "max_value": 100,
+        "stances": [
+            {
+                "name": "Remove All Substance Bans",
+                "value": 15,
+                "moderate": false,
+                "industry_effects": {
+                    "manufacturing": 4,
+                    "public_sector": -5
+                }
+            },
+            {
+                "name": "Rehabilitation Programs",
+                "value": 35,
+                "moderate": false,
+                "industry_effects": {
+                    "public_sector": -3
+                }
+            },
+            {
+                "name": "Increased Drug Policing",
+                "value": 55,
+                "moderate": true,
+                "industry_effects": {
+                    "public_sector": 6
+                }
+            }
+        ]
+    },
+    {
+        "name": "Voter ID",
+        "type": "social_stance",
+        "min_value": 30,
+        "max_value": 80,
+        "stances": [
+            {
+                "name": "Easier Voting Registration",
+                "value": 30,
+                "moderate": true,
+                "industry_effects": {}
+            },
+            {
+                "name": "Stricter Voting Requirements",
+                "value": 55,
+                "moderate": true,
+                "industry_effects": {}
+            }
+        ]
+    },
+    {
+        "name": "Healthcare",
+        "type": "economic_stance",
+        "min_value": 10,
+        "max_value": 80,
+        "stances": [
+            {
+                "name": "Universal Single Payer Healthcare",
+                "value": 25,
+                "moderate": false,
+                "industry_effects": {
+                    "professional_services": -6,
+                    "public_sector": 10
+                }
+            },
+            {
+                "name": "Individual Mandate",
+                "value": 50,
+                "moderate": true,
+                "industry_effects": {
+                    "professional_services": 4
+                }
+            },
+            {
+                "name": "Tax Credits for Health Insurance",
+                "value": 60,
+                "moderate": true,
+                "industry_effects": {
+                    "professional_services": 2
+                }
+            },
+            {
+                "name": "Health Insurance Deregulation",
+                "value": 75,
+                "moderate": false,
+                "industry_effects": {
+                    "professional_services": 5
+                }
             }
         ]
     }
