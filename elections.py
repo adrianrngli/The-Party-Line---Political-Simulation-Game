@@ -105,15 +105,15 @@ class StateElection(Election):
         if in_national_recession:
             for candidate in self.general_candidates:
                 if (candidate.party.letter == 'D' or candidate.party.letter == 'R') and candidate.party != self.nation.president.party:
-                    self.points[candidate] += 25
+                    self.points[candidate] += 8
         if in_state_recession:
             for candidate in self.general_candidates:
                 if (candidate.party.letter == 'D' or candidate.party.letter == 'R') and candidate.party != self.nation.president.party:
-                    self.points[candidate] += 25
+                    self.points[candidate] += 8
         if not (in_national_recession or in_state_recession):
             for candidate in self.general_candidates:
                 if candidate.party == self.nation.president.party:
-                    self.points[candidate] += 25
+                    self.points[candidate] += 8
 
     def long_term_economy_contest(self):
         current_growth = self.state.econ_record.average_growth((self.nation.year - 4) - (self.nation.year % 4) + 1, self.nation.year)
@@ -121,16 +121,16 @@ class StateElection(Election):
         if current_growth >= past_growth:
             for candidate in self.general_candidates:
                 if candidate.party == self.nation.president.party:
-                    self.points[candidate] += 20
+                    self.points[candidate] += 8
         else:
             for candidate in self.general_candidates:
                 if (candidate.party.letter == 'D' or candidate.party.letter == 'R') and candidate.party != self.nation.president.party:
-                    self.points[candidate] += 20
+                    self.points[candidate] += 8
 
     def random_contest(self):
-        partitions = [0, 50]
+        partitions = [0, 20]
         for i in range(len(self.general_candidates) - 1):
-            partitions.append(random.randint(0, 50))
+            partitions.append(random.randint(0, 20))
         partitions.sort()
         for i in range(len(self.general_candidates)):
             self.points[self.general_candidates[i]] += partitions[i+1] - partitions[i]
@@ -324,9 +324,9 @@ class StatePresidentialElection(StateElection):
             if (primary_opponent != self.defender and 
                 (primary_opponent == self.nation.president or 
                  primary_opponent.stats["fame"].value > self.defender.stats["fame"].value and primary_opponent.distance_between_stats(self.defender, ["economic_stance", "foreign_stance", "social_stance"]) >= 15.0)):
-                self.points[self.challenger] += 15
+                self.points[self.challenger] += 8
                 return
-        self.points[self.defender] += 15
+        self.points[self.defender] += 8
 
     def party_mandate_contest(self):
         house_vote_difference = 0
@@ -337,49 +337,49 @@ class StatePresidentialElection(StateElection):
             elif result_string[0] == self.challenger.party.letter:
                 house_vote_difference -= int(result_string[2:])
         if house_vote_difference > 0:
-            self.points[self.defender] += 15
+            self.points[self.defender] += 8
         else:
-            self.points[self.challenger] += 15
+            self.points[self.challenger] += 8
     
     def incumbency_contest(self):
         if self.defender == self.nation.president:
-            self.points[self.defender] += 15
+            self.points[self.defender] += 8
         else:
-            self.points[self.challenger] += 15
+            self.points[self.challenger] += 8
 
     def no_third_party_contest(self):
         if len(self.general_candidates) > 2:
-            self.points[self.challenger] += 15
+            self.points[self.challenger] += 8
         else:
-            self.points[self.defender] += 15
+            self.points[self.defender] += 8
 
     def no_recession_contest(self):
         in_national_recession = self.nation.econ_record.get_growth(self.nation.year) < 0.0
         in_state_recession = self.state.econ_record.get_growth(self.nation.year) < 0.0
         if in_national_recession:
-            self.points[self.challenger] += 15     
+            self.points[self.challenger] += 8   
         if in_state_recession:
-            self.points[self.challenger] += 15
+            self.points[self.challenger] += 8
         if not (in_national_recession or in_state_recession):
-            self.points[self.defender] += 15
+            self.points[self.defender] += 8
 
     
 
     def scandal_contest(self):
         if self.nation.presidential_scandal:
-            self.points[self.challenger] += 15
+            self.points[self.challenger] += 8
         else:
-            self.points[self.defender] += 15
+            self.points[self.defender] += 8
 
     def elite_charisma_contest(self):
         if self.defender.stats["charisma"].value > 92.0:
-            self.points[self.defender] += 15
+            self.points[self.defender] += 8
         else:
-            self.points[self.challenger] += 15
+            self.points[self.challenger] += 8
         if self.challenger.stats["charisma"].value > 92.0:
-            self.points[self.challenger] += 15
+            self.points[self.challenger] += 8
         else:
-            self.points[self.defender] += 15
+            self.points[self.defender] += 8
         
     def bills_contest(self):
         major_bill_passed = False
@@ -388,9 +388,9 @@ class StatePresidentialElection(StateElection):
                 major_bill_passed = True
                 law = self.nation.laws_passed[year]
                 if self.state.law_popularity(law.issue, law.stance) > 50.0:
-                    self.points[self.defender] += 5
+                    self.points[self.defender] += 2
         if not major_bill_passed:
-            self.points[self.challenger] += 15
+            self.points[self.challenger] += 8
 
     def run_election(self):
         self.first_year_contest()
