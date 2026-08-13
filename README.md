@@ -9,6 +9,11 @@ and the other party adapts to the changing political climate.
 
 Written in Python with a pygame interface built around an interactive US map.
 
+![Election night, 1988: the map colored by state result, with the national
+electoral and popular vote below it](screenshots/dashboard.png)
+
+Check the github page regularly for updates!
+
 ## Requirements
 
 - Python 3.9 or newer
@@ -101,3 +106,5 @@ Playable start to finish, and still in development. Known gaps:
 - Major rebalancing of passing laws and elections is needed.
 - Presidents don't do much besides sign and veto laws. More interactions with foreign powers will be added.
 - In presidential elections, before the election runs you have no way of knowing the margins of each state.
+- A 269–269 electoral tie crashes the game. There's no contingent election yet,
+  and no candidate reaches 270. Roughly a 1-in-1,400 election.

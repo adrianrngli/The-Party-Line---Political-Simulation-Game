@@ -1,5 +1,0 @@
-issue name, issue type, min_value, max_value, stance1 name, stance1 value, stance1IsModerate, stance2 value, etc. 
-Taxing the wealthy, economic_stance, 10, 100, Tax Cuts, 70, 0, Moderate Taxes, 50, 1, High Taxes, 30, 0
-Nuclear weapons, foreign_stance, 45, 100, Arms Control, 50, 0, Nuclear Proliferation, 70, 0
-Government surveillance, social_stance, 50, 100, Anti-surveillance, 45, 0, Pro-surveillance, 70, 0
-Segregation, social_stance, 60, 90, Desegregation, 60, 0, Pro-segregation, 80, 0

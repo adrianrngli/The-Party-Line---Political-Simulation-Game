@@ -1,4 +1,4 @@
-"""A pygame frontend for Party Chair Sim: an interactive US-map dashboard.
+"""A pygame frontend for The Party Line: an interactive US-map dashboard.
 
 `Game.run()` calls the GameInterface methods synchronously and expects the
 input methods (select / confirm / pause / pick_state) to block until the player

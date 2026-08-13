@@ -6,8 +6,8 @@
         "max_value": 100,
         "stances": [
             {
-                "name": "Tax Cuts",
-                "value": 70,
+                "name": "High Taxes",
+                "value": 30,
                 "moderate": false,
                 "industry_effects": {}
             },
@@ -18,8 +18,8 @@
                 "industry_effects": {}
             },
             {
-                "name": "High Taxes",
-                "value": 30,
+                "name": "Tax Cuts",
+                "value": 70,
                 "moderate": false,
                 "industry_effects": {}
             }
@@ -1019,7 +1019,7 @@
                 "industry_effects": {}
             },
             {
-                "name": "Anti Disability Accomodationsw",
+                "name": "Anti Disability Accomodations",
                 "value": 80,
                 "moderate": false,
                 "industry_effects": {}

@@ -1,4 +1,4 @@
-"""Launch Party Chair Sim with the pygame GUI frontend.
+"""Launch The Party Line with the pygame GUI frontend.
 
 The console version still lives in game_loop.py; this simply swaps in the
 pygame implementation of GameInterface. Requires: pip install pygame
