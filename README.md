@@ -77,7 +77,7 @@ The pygame version is a dashboard, not a scrolling log:
 | --- | --- |
 | `game.py` | The turn structure — owns game state and drives each phase. |
 | `game_gui.py` | Launcher for the game|
-| `interfaces.py` | `GameInterface`, the boundary between game logic and the player, plus the console implementation. |
+| `interfaces.py` | `GameInterface`, the boundary between game logic and the player.|
 | `pygame_interface.py` | The pygame dashboard: map, panels, pickers, modals. |
 | `us_map.py` | Draws and hit-tests the US map from GeoJSON. |
 | `player.py` | Human and computer players — who decides what, and how the AI decides. |
@@ -95,6 +95,9 @@ Playable start to finish, and still in development. Known gaps:
 
 - No save or load — a run lasts as long as the window stays open.
 - The main menu has only **New Game**; more options are meant to go there.
-- Only the two major parties exist. Third parties are anticipated in the code
-  but not implemented.
-- After 60 years the game simply ends; there's no closing summary.
+- Only the two major parties exist. Third parties are planned but not implemented.
+- The end screen only announces your retirement; there's no summary of the
+  career you just played.
+- Major rebalancing of passing laws and elections is needed.
+- Presidents don't do much besides sign and veto laws. More interactions with foreign powers will be added.
+- In presidential elections, before the election runs you have no way of knowing the margins of each state.

@@ -31,6 +31,8 @@ class Player:
         for issue in nation.issues:
             if not issue.resolved:
                 unresolved_issues.append(issue)
+        if not unresolved_issues:
+            return None  # every issue on the slate is settled: no bill this year
         bill_index = random.randint(0, len(unresolved_issues) - 1)
         return Bill(unresolved_issues[bill_index], self.party.get_stance(unresolved_issues[bill_index]), self.party, nation.year, nation)
 
@@ -66,7 +68,7 @@ class HumanPlayer(Player):
                                     for election in senate_election.elections[abbreviation])}
             state_polling = senate_election.get_polling_by_state()
             state_choice = self.interface.pick_state(
-                "Senate elections: click a highlighted state to nominate your candidate — locked states are already decided. Quit when you're done.",
+                "Senate elections: click a highlighted state to nominate your candidate — locked states are already decided. Advance when you're done.",
                 states_with_races,
                 allow_quit=True,
                 info=state_polling,
@@ -145,6 +147,8 @@ class HumanPlayer(Player):
     def propose_law(self, nation):
         """Prompt the player to choose an issue and a stance, then attempt to pass a bill on it"""
         unresolved_issues = [issue for issue in nation.issues if not issue.resolved]
+        if not unresolved_issues:
+            return None  # every issue on the slate is settled: no bill this year
         issue = self.interface.select(
             "Choose the issue you would like to legislate on",
             unresolved_issues,

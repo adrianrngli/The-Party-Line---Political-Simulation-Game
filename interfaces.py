@@ -25,6 +25,15 @@ class GameInterface:
         return self.select("Choose an option:", options,
                            labeler=lambda entry: entry[0])[1]
 
+    def end_screen(self, title, lines=(), action_label="Return to Main Menu"):
+        """Show the closing screen once a run is over and block until the player
+        acknowledges it. Default: announce the title and lines, then pause; a
+        graphical frontend gives it a screen of its own."""
+        self.announce(title)
+        for line in lines:
+            self.announce(line)
+        self.pause(action_label + " (press enter) ")
+
     def select(self, prompt, options, labeler=str, *, details=None, allow_quit=False,
                reference=None, focus_state=None):
         """Present `options` and return the one the player chooses.

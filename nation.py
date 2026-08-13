@@ -178,21 +178,24 @@ class Nation:
                 if new_issues[i].type == "economic_stance":
                     has_economic_issue = True
                     break
-            if not has_economic_issue:
+            # each uncovered axis gets an issue, but only while a slot is free:
+            # carried-over issues bunched on one axis would otherwise push the
+            # slate past four
+            if not has_economic_issue and len(new_issues) < 4:
                 new_issues.extend(self.all_issues.generate_issues(1, self.get_center_points(), new_issues + self.issues, axis="economic_stance"))
             has_foreign_issue = False
             for i in range(len(new_issues)):
                 if new_issues[i].type == "foreign_stance":
                     has_foreign_issue = True
                     break
-            if not has_foreign_issue:
+            if not has_foreign_issue and len(new_issues) < 4:
                 new_issues.extend(self.all_issues.generate_issues(1, self.get_center_points(), new_issues + self.issues, axis="foreign_stance"))
             has_social_issue = False
             for i in range(len(new_issues)):
                 if new_issues[i].type == "social_stance":
                     has_social_issue = True
                     break
-            if not has_social_issue:
+            if not has_social_issue and len(new_issues) < 4:
                 new_issues.extend(self.all_issues.generate_issues(1, self.get_center_points(), new_issues + self.issues, axis="social_stance"))
             # the issues carried over, plus the one added per uncovered axis above,
             # can already fill the slate -- then there is no room left to draw for

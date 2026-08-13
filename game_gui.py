@@ -9,11 +9,13 @@ from game import Game
 
 
 def main():
+    # A finished run returns to the main menu, so the player can start another
+    # without relaunching. The window closing exits the process from wherever
+    # the player is, so the loop only ever ends on a non-"new" menu choice.
     interface = PygameInterface()
-    if interface.main_menu() != "new":
-        return
-    game = Game(interface)
-    game.run()
+    while interface.main_menu() == "new":
+        game = Game(interface)
+        game.run()
 
 
 if __name__ == "__main__":

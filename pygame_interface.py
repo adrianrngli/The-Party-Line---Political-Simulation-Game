@@ -177,6 +177,7 @@ class PygameInterface(GameInterface):
         until the player picks one and returns its action. Extra options are
         simply stacked underneath, so the screen grows with the menu."""
         options = list(options or [("New Game", "new")])
+        self._reset_dashboard()  # a finished run must not bleed into the next one
         btn_w, btn_h = 280, 48
         top = int(self.HEIGHT * 0.52)
         rects = [pygame.Rect((self.WIDTH - btn_w) // 2, top + i * (btn_h + self.PAD),
@@ -199,6 +200,62 @@ class PygameInterface(GameInterface):
                 self._button(rect, label, rect.collidepoint(mouse), center=True)
             pygame.display.flip()
             self.clock.tick(self.FPS)
+
+    def end_screen(self, title, lines=(), action_label="Return to Main Menu"):
+        """Closing screen for a finished run, laid out as a bookend to the title
+        screen: the heading over the closing lines, and one button back to the
+        menu. Blocks until the player takes it."""
+        body = []
+        for line in lines:
+            body.extend(self._wrap(str(line), self.WIDTH - 8 * self.PAD, self.font))
+        line_h = self.font.get_linesize()
+        btn_w, btn_h = 280, 48
+        button = pygame.Rect((self.WIDTH - btn_w) // 2, int(self.HEIGHT * 0.62),
+                             btn_w, btn_h)
+        region_top, region_bottom = int(self.HEIGHT * 0.42), button.top - self.PAD
+        body_top = max(region_top,
+                       (region_top + region_bottom - len(body) * line_h) // 2)
+        while True:
+            mouse = pygame.mouse.get_pos()
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self._shutdown()
+                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    if button.collidepoint(event.pos):
+                        return
+                elif event.type == pygame.KEYDOWN and event.key in (pygame.K_RETURN, pygame.K_SPACE):
+                    return
+            self.screen.fill(self.BG)
+            self._render_menu_title(title)
+            y = body_top
+            for text in body:
+                surface = self.font.render(text, True, self.TEXT)
+                self.screen.blit(surface, (self.WIDTH // 2 - surface.get_width() // 2, y))
+                y += line_h
+            self._button(button, action_label, button.collidepoint(mouse), center=True)
+            pygame.display.flip()
+            self.clock.tick(self.FPS)
+
+    def _reset_dashboard(self):
+        """Drop every trace of a run: the bound nation, the panel contents, and
+        anything a screen was mid-way through showing. Called from the main menu
+        so a second game starts on a clean dashboard rather than inheriting the
+        last one's polling, results and map colors."""
+        self.nation = None
+        self._state_index = {}
+        self.context = {}
+        self.polls = {}
+        self.result_summary = None
+        self._capture = None
+        self.active_panel = None
+        self.panel_state = None
+        self._map_colors = None
+        self._state_results = None
+        self._pick_states = None
+        self._pick_info = None
+        self._pick_locked = set()
+        self._scroll = {}
+        self._scroll_regions = {}
 
     def _render_menu_title(self, title):
         """The game's name, centered above the menu buttons, with an accent rule."""
@@ -246,8 +303,8 @@ class PygameInterface(GameInterface):
         abbreviations to a detail line shown on hover. `locked` is a set of
         abbreviations the player may still inspect but not choose (their race
         is already decided) -- shown marked on the map and with a locked notice
-        instead of a choose button. Returns the chosen abbreviation, or None on
-        quit."""
+        instead of a choose button. Returns the chosen abbreviation, or None when
+        the player advances past the picker without choosing one."""
         highlight = set(state_abbrevs)
         self._pick_locked = set(locked or ())
         self.active_panel = None
@@ -275,10 +332,13 @@ class PygameInterface(GameInterface):
                             continue
                         self._open_state_panel(event.pos)
                     elif event.type == pygame.KEYDOWN:
-                        if allow_quit and event.key in (pygame.K_q, pygame.K_ESCAPE):
+                        # Enter/Space takes the action button here as it does on
+                        # every other screen; Q/Esc still work.
+                        if allow_quit and event.key in (pygame.K_q, pygame.K_ESCAPE,
+                                                        pygame.K_RETURN, pygame.K_SPACE):
                             return None
                 self._render_dashboard(highlight=highlight, hover_state=hover, mouse=mouse)
-                self._draw_action_and_prompt("Quit" if allow_quit else None, prompt, mouse)
+                self._draw_action_and_prompt("Advance" if allow_quit else None, prompt, mouse)
                 if hover in self._pick_info:
                     note = self._pick_info[hover]
                     if hover in self._pick_locked:

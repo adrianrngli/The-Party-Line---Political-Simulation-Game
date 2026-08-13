@@ -56,6 +56,16 @@ class Game:
         self.report_state_of_the_nation()
         for _ in range(years):
             self.play_year()
+        self.retirement(years)
+
+    def retirement(self, years):
+        """Close out a finished run: a full career as chair ends in retirement."""
+        self.interface.end_screen(
+            "Retirement",
+            ["After " + str(years) + " years in politics, you retire as chair of the "
+             + str(self.players[0].party) + ".",
+             "The year is " + str(self.nation.year) + ". The party passes to your successor."],
+        )
 
     def play_year(self):
         self.interface.announce("Polling on issues: ")
@@ -130,6 +140,8 @@ class Game:
         for player in self.players:
             if player.party == proposing_party:
                 proposed_bill = player.propose_law(self.nation)
+        if proposed_bill is None:
+            return  # nothing left on the slate to legislate on until it refreshes
         for player in self.players:
             if player.party != proposing_party:
                 player.choose_bill_stance(proposed_bill)

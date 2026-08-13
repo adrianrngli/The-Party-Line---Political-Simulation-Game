@@ -62,10 +62,21 @@ class AllIssues:
     def new_issue(self):
         return self.issues[0]
     
-    def generate_issues(self, num, center_points, current_issues=[], axis = None):
+    def generate_issues(self, num, center_points, current_issues=None, axis = None):
+        """Draw up to `num` issues the nation could be debating: ones whose value
+        window contains the country's current center point on their axis, and
+        (with `axis` given) only issues on that axis.
+
+        Issues in `current_issues` are excluded, so an issue already on the slate
+        is never drawn a second time -- a duplicate would eat one of the four
+        slots without adding an issue to legislate on. If fewer than `num` issues
+        qualify, every one that does is returned rather than raising."""
+        current_issues = current_issues or []
         valid_issues = []
         for issue in self.issues:
+            if issue in current_issues:
+                continue
             if axis == None or issue.type == axis:
                 if issue.min_value <= center_points[issue.type] and issue.max_value >= center_points[issue.type]:
                     valid_issues.append(issue)
-        return random.sample(valid_issues, num)
+        return random.sample(valid_issues, min(num, len(valid_issues)))
