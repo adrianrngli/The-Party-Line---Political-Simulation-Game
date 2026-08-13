@@ -10,6 +10,21 @@ class GameInterface:
     only requires implementing these methods against the new toolkit.
     """
 
+    def main_menu(self, title="The Party Line", options=None):
+        """Show the title screen before the game starts and return the action
+        the player chose.
+
+        `options` is a list of (label, action) pairs, so later additions (load
+        game, settings, quit) only need a longer list here rather than changes
+        in each frontend. Default: announce the title and pick from the labels
+        via select(); a graphical frontend draws a real title screen.
+        """
+        options = list(options or [("New Game", "new")])
+        self.announce(title)
+        self.announce()
+        return self.select("Choose an option:", options,
+                           labeler=lambda entry: entry[0])[1]
+
     def select(self, prompt, options, labeler=str, *, details=None, allow_quit=False,
                reference=None, focus_state=None):
         """Present `options` and return the one the player chooses.

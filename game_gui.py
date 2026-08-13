@@ -10,6 +10,8 @@ from game import Game
 
 def main():
     interface = PygameInterface()
+    if interface.main_menu() != "new":
+        return
     game = Game(interface)
     game.run()
 

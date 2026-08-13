@@ -53,7 +53,7 @@ class PygameInterface(GameInterface):
     CONTROL_H = 230
     BTN_W = 170
 
-    def __init__(self, title="Party Chair Sim"):
+    def __init__(self, title="The Party Line"):
         pygame.init()
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
         pygame.display.set_caption(title)
@@ -61,6 +61,7 @@ class PygameInterface(GameInterface):
         self.font = pygame.font.SysFont("menlo,consolas,monospace", 15)
         self.bold = pygame.font.SysFont("menlo,consolas,monospace", 15, bold=True)
         self.title_font = pygame.font.SysFont("menlo,consolas,monospace", 20, bold=True)
+        self.menu_font = pygame.font.SysFont("menlo,consolas,monospace", 44, bold=True)
 
         # dashboard state
         self.nation = None
@@ -170,6 +171,44 @@ class PygameInterface(GameInterface):
     # ------------------------------------------------------------------ #
     # GameInterface: input (each runs a blocking event loop)
     # ------------------------------------------------------------------ #
+
+    def main_menu(self, title="The Party Line", options=None):
+        """Title screen: the game's name over a stack of menu buttons. Blocks
+        until the player picks one and returns its action. Extra options are
+        simply stacked underneath, so the screen grows with the menu."""
+        options = list(options or [("New Game", "new")])
+        btn_w, btn_h = 280, 48
+        top = int(self.HEIGHT * 0.52)
+        rects = [pygame.Rect((self.WIDTH - btn_w) // 2, top + i * (btn_h + self.PAD),
+                             btn_w, btn_h)
+                 for i in range(len(options))]
+        while True:
+            mouse = pygame.mouse.get_pos()
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self._shutdown()
+                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    for rect, (_, action) in zip(rects, options):
+                        if rect.collidepoint(event.pos):
+                            return action
+                elif event.type == pygame.KEYDOWN and event.key in (pygame.K_RETURN, pygame.K_SPACE):
+                    return options[0][1]  # Enter takes the first entry (New Game)
+            self.screen.fill(self.BG)
+            self._render_menu_title(title)
+            for rect, (label, _) in zip(rects, options):
+                self._button(rect, label, rect.collidepoint(mouse), center=True)
+            pygame.display.flip()
+            self.clock.tick(self.FPS)
+
+    def _render_menu_title(self, title):
+        """The game's name, centered above the menu buttons, with an accent rule."""
+        text = self._truncate(str(title), self.WIDTH - 4 * self.PAD, self.menu_font)
+        surface = self.menu_font.render(text, True, self.WHITE)
+        rect = surface.get_rect(center=(self.WIDTH // 2, int(self.HEIGHT * 0.36)))
+        self.screen.blit(surface, rect)
+        rule = pygame.Rect(0, rect.bottom + 14, min(rect.width, self.WIDTH // 2), 3)
+        rule.centerx = self.WIDTH // 2
+        pygame.draw.rect(self.screen, self.ACCENT, rule, border_radius=2)
 
     def pause(self, message=""):
         """Interactive dashboard: inspect states/panels until Continue."""
@@ -1125,9 +1164,10 @@ class PygameInterface(GameInterface):
         self.screen.blit(self.font.render(str(round(pct, 1)) + "%", True, self.MUTED),
                          (bar_x + bar_w + 8, y))
 
-    def _button(self, rect, label, hover, *, quit_style=False):
+    def _button(self, rect, label, hover, *, quit_style=False, center=False):
         """A button whose label may run to several lines; `label` is either a
-        string or the pre-wrapped lines from _row_layout."""
+        string or the pre-wrapped lines from _row_layout. `center` centers the
+        label instead of left-aligning it (used by the main menu)."""
         if quit_style:
             color = self.QUIT_HOVER if hover else self.QUIT_COLOR
         else:
@@ -1139,7 +1179,9 @@ class PygameInterface(GameInterface):
         y = rect.centery - len(lines) * line_h // 2
         self.screen.set_clip(rect)  # a label longer than its row stays in its box
         for line in lines:
-            self.screen.blit(self.font.render(line, True, self.WHITE), (rect.x + 10, y))
+            surface = self.font.render(line, True, self.WHITE)
+            x = rect.centerx - surface.get_width() // 2 if center else rect.x + 10
+            self.screen.blit(surface, (x, y))
             y += line_h
         self.screen.set_clip(None)
 
