@@ -172,30 +172,31 @@ class Nation:
         for issue in self.issues:
             if not issue.resolved:
                 new_issues.append(issue)
-        has_economic_issue = False
-        for i in range(len(new_issues)):
-            if new_issues[i].type == "economic_stance":
-                has_economic_issue = True
-                break
-        if not has_economic_issue:
-            new_issues.extend(self.all_issues.generate_issues(1, self.get_center_points(), new_issues + self.issues, axis="economic_stance"))
-        has_foreign_issue = False
-        for i in range(len(new_issues)):
-            if new_issues[i].type == "foreign_stance":
-                has_foreign_issue = True
-                break
-        if not has_foreign_issue:
-            new_issues.extend(self.all_issues.generate_issues(1, self.get_center_points(), new_issues + self.issues, axis="foreign_stance"))
-        has_social_issue = False
-        for i in range(len(new_issues)):
-            if new_issues[i].type == "social_stance":
-                has_social_issue = True
-                break
-        if not has_social_issue:
-            new_issues.extend(self.all_issues.generate_issues(1, self.get_center_points(), new_issues + self.issues, axis="social_stance"))
-        # the issues carried over, plus the one added per uncovered axis above,
-        # can already fill the slate -- then there is no room left to draw for
-        new_issues.extend(self.all_issues.generate_issues(max(0, 4 - len(new_issues)), self.get_center_points(), new_issues + self.issues))
+        if len(new_issues) < 4:
+            has_economic_issue = False
+            for i in range(len(new_issues)):
+                if new_issues[i].type == "economic_stance":
+                    has_economic_issue = True
+                    break
+            if not has_economic_issue:
+                new_issues.extend(self.all_issues.generate_issues(1, self.get_center_points(), new_issues + self.issues, axis="economic_stance"))
+            has_foreign_issue = False
+            for i in range(len(new_issues)):
+                if new_issues[i].type == "foreign_stance":
+                    has_foreign_issue = True
+                    break
+            if not has_foreign_issue:
+                new_issues.extend(self.all_issues.generate_issues(1, self.get_center_points(), new_issues + self.issues, axis="foreign_stance"))
+            has_social_issue = False
+            for i in range(len(new_issues)):
+                if new_issues[i].type == "social_stance":
+                    has_social_issue = True
+                    break
+            if not has_social_issue:
+                new_issues.extend(self.all_issues.generate_issues(1, self.get_center_points(), new_issues + self.issues, axis="social_stance"))
+            # the issues carried over, plus the one added per uncovered axis above,
+            # can already fill the slate -- then there is no room left to draw for
+            new_issues.extend(self.all_issues.generate_issues(max(0, 4 - len(new_issues)), self.get_center_points(), new_issues + self.issues))
         self.issues = new_issues
         for issue in self.issues:
             issue.resolved = False
