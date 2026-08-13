@@ -1,6 +1,7 @@
 from parties import Party
 from laws import Bill
 import random
+from math import sqrt
 
 class Player:
     def __init__(self, party, interface=None):
@@ -190,3 +191,10 @@ class CPUPlayer(Player):
                     least_distance = self.party.stats[issue.type].distance_to(issue.stances[stance])
             platform[issue] = closest_stance
         self.party.set_platform(platform)
+
+    def update_party(self, president):
+        for axis in ["economic_stance", "foreign_stance", "social_stance"]:
+            if president.stats["popularity"].value >= 50.0:
+                self.party.stats[axis].push_toward(president.stats[axis], sqrt(president.stats["popularity"].value - 50.0)/75)
+            else:
+                self.stats[axis].push_away_from(president.stats[axis], sqrt(50.0 - president.stats["popularity"].value)/75)

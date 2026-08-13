@@ -78,6 +78,9 @@ class Game:
         self.interface.pause("Press enter to advance year ")
         self.interface.announce()
         self.nation.increment_year()
+        for player in self.players:
+            if type(player) == CPUPlayer:
+                player.update_party(self.nation.president)
         if self.nation.year % 4 == 3:
             for player in self.players:
                 player.set_platform(self.nation.issues)
