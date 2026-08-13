@@ -53,7 +53,7 @@ Not every phase happens every year:
 
 **Passing Bills**
 
-A bill has to clear the House, survive the Senate (some bills will needs 60
+A bill has to clear the House, survive the Senate (some bills will need 60
 votes to break a filibuster), and then be signed by the president, who will
 veto a bill they disagree with unless both chambers passed it by enough of a
 margin to be worth reconsidering. A law passed affects the nation, changing approval rates for politicians and parties, and affecting the economy.
@@ -61,7 +61,7 @@ margin to be worth reconsidering. A law passed affects the nation, changing appr
 **Nominating Candidates**
 
 Candidates are not interchangeable. Each has different values for age, experience, fame, charisma,
-corruptness, and their own stances. States take all of these into account, weighing a candidates stances against their own, but also taking into account the current national environment. You'll rarely have both a perfect environment and perfect candidate who aligns with both your views and the state's views, so you may need to make tough decisions on who to nominate.
+corruptness, and their own stances. States take all of these into account, weighing a candidate's stances against their own, but also taking into account the current national environment. You'll rarely have both a perfect environment and perfect candidate who aligns with both your views and the state's views, so you may need to make tough decisions on who to nominate.
 
 ## The interface
 
