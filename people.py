@@ -34,6 +34,8 @@ class Politician(StatHolder):
         """Updates the age and years of experience to both increase by one after a year progresses"""
         self.age += 1
         self.years_of_experience += 1
+        if self.age > 65:
+            self.stats["charisma"].subtract(1)
 
     def auto_set_stances(self):
         """Automatically sets the stance on economic, foreign, and social policy to be a balance of the party and state's positions"""
