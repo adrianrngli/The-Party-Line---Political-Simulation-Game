@@ -138,16 +138,16 @@ class State(StatHolder):
     
     def increment_year(self, president, year):
         self.stats["presidential_approval"].subtract(2.5)
-        self.stats["wealth"].add((self.econ_record.get_growth(year - 1) - 2) * 1.5)
+        self.stats["wealth"].add((self.econ_record.get_growth(year - 1) - 2))
         self.stats["density"].add((self.econ_record.get_growth(year - 1) - 2))
-        self.stats["economic_stance"].add((self.stats["wealth"].value - 50.0)/10)
+        self.stats["economic_stance"].add((self.stats["wealth"].value - 50.0)/50)
         if self.stats["density"].value > 50.0:
-            self.stats["social_stance"].subtract(sqrt((self.stats["density"].value - 50.0)/4))
+            self.stats["social_stance"].subtract(sqrt((self.stats["density"].value - 50.0)/50))
         for axis in ["economic_stance", "foreign_stance", "social_stance"]:
             if self.stats["presidential_approval"].value >= 50.0:
-                self.stats[axis].push_toward(president.stats[axis], sqrt(self.stats["presidential_approval"].value - 50.0)/10)
+                self.stats[axis].push_toward(president.stats[axis], sqrt(self.stats["presidential_approval"].value - 50.0)/50)
             else:
-                self.stats[axis].push_away_from(president.stats[axis], sqrt(50.0 - self.stats["presidential_approval"].value)/10)
+                self.stats[axis].push_away_from(president.stats[axis], sqrt(50.0 - self.stats["presidential_approval"].value)/50)
 
     def update_economy(self, industry_changes, year):
         if year not in self.econ_record.years():
@@ -160,6 +160,15 @@ class State(StatHolder):
 
     def get_growth(self, year):
         return self.econ_record.get_growth(year)
+
+    def set_initial_presidential_approval(self, president, issues):
+        total_distance = 0
+        for issue in issues:
+            total_distance += president.get_stance(issue).distance_to(self.get_stance(issue))
+        initial_score = ((90 - 4.5 * sqrt(total_distance)) + president.stats["popularity"].value)/2
+        self.set_stat("presidential_approval", initial_score)
+        self.stats["presidential_approval"].add(17.5)
+        self.set_stat("presidential_approval", min(self.stats["presidential_approval"].value, 70.5))
 
     def __str__(self):
         return self.name

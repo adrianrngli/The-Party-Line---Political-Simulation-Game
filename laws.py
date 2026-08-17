@@ -164,17 +164,17 @@ class Bill:
     def implement(self):
         for i in range(2):
             if self.party_votes[self.nation.parties[i]] == "Yea":
-                self.nation.parties[i].stats["popularity"].add(self.get_national_popularity() - 50)
+                self.nation.parties[i].stats["popularity"].add((self.get_national_popularity() - 50)/5)
             else:
-                self.nation.parties[i].stats["popularity"].add(50 - self.get_national_popularity())
+                self.nation.parties[i].stats["popularity"].add((50 - self.get_national_popularity())/5)
         if self.issue.type == "economic_stance":
             self.nation.industry_tracker.apply_stance(self.stance)
         for state in self.nation.states:
-            state.stats["presidential_approval"].add((state.law_popularity(self.issue, self.stance) - 50))
+            state.stats["presidential_approval"].add((state.law_popularity(self.issue, self.stance) - 50)/5)
             if self.issue.type == "economic_stance" and self.stance.value < 50:
-                state.stats["wealth"].add((50-self.stance.value)/10)
+                state.stats["wealth"].add((50-self.stance.value)/20)
             elif self.issue.type == "social_stance":
-                state.stats["density"].add((state.stats["social_stance"].value-self.stance.value)/2)
+                state.stats["density"].add((state.stats["social_stance"].value-self.stance.value)/4)
         self.issue.resolved = True
 
     def __str__(self):

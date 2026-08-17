@@ -168,9 +168,9 @@ class Senator(Politician):
         super().increment_year()
         for axis in ["economic_stance", "foreign_stance", "social_stance"]:
             if president.stats["popularity"].value >= 50.0:
-                self.stats[axis].push_toward(president.stats[axis], sqrt(president.stats["popularity"].value - 50.0)/15)
+                self.stats[axis].push_toward(president.stats[axis], sqrt(president.stats["popularity"].value - 50.0)/50)
             else:
-                self.stats[axis].push_away_from(president.stats[axis], sqrt(50.0 - president.stats["popularity"].value)/15)
+                self.stats[axis].push_away_from(president.stats[axis], sqrt(50.0 - president.stats["popularity"].value)/50)
         if self.set_to_retire:
             self.retire()
             return None
@@ -304,7 +304,7 @@ def convert_to_senator(person, year):
     new_senator.stats = person.stats
     return new_senator
 
-def convert_to_president(person, states):
+def convert_to_president(person, states, issues=[]):
     new_president = President(person.party, person.state)
     new_president.first_name = person.first_name
     new_president.middle_initial = person.middle_initial
@@ -313,8 +313,7 @@ def convert_to_president(person, states):
     new_president.years_of_experience = person.years_of_experience
     new_president.stats = person.stats
     for state in states:
-        state.set_stat("presidential_approval", person.stats["popularity"].value)
-        state.stats["presidential_approval"].add(17.5)
+        state.set_initial_presidential_approval(person, issues)
     new_president.calculate_popularity(states)
     return new_president
 

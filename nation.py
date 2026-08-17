@@ -131,9 +131,9 @@ class Nation:
         for party in self.parties:
             if (party.letter == 'D' or party.letter == 'R') and party != self.president.party:
                 if self.president.stats["popularity"].value > 50:
-                    party.stats["popularity"].subtract(sqrt(self.president.stats["popularity"].value - 50)/5)
+                    party.stats["popularity"].subtract(sqrt(self.president.stats["popularity"].value - 50)/10)
                 else:
-                    party.stats["popularity"].add(sqrt(50 - self.president.stats["popularity"].value)/5)
+                    party.stats["popularity"].add(sqrt(50 - self.president.stats["popularity"].value)/10)
         retirements = []
         for state in self.states:
             for sen in state.senators:
@@ -316,9 +316,9 @@ class Nation:
         for party in self.parties:
             if (party.letter == 'D' or party.letter == 'R') and party != self.president.party:
                 if self.president.stats["popularity"].value > 50:
-                    party.stats["popularity"].subtract(sqrt(self.president.stats["popularity"].value - 50)/5)
+                    party.stats["popularity"].subtract(sqrt(self.president.stats["popularity"].value - 50)/10)
                 else:
-                    party.stats["popularity"].add(sqrt(50 - self.president.stats["popularity"].value)/5)
+                    party.stats["popularity"].add(sqrt(50 - self.president.stats["popularity"].value)/10)
         news = [headline for headline in news if headline]
         if news:
             self.interface.event("In the news this year", news)
