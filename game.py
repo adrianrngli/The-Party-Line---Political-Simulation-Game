@@ -22,7 +22,12 @@ class Game:
         self.republicans = Party("Republican", 'R')
         self.republicans.set_political_stances(45, 65, 70)
         self.all_issues = AllIssues()
-        initial_issues = self.all_issues.generate_issues(4, {"economic_stance": 40, "foreign_stance": 65, "social_stance": 67.5})
+        initial_centers = {"economic_stance": 40, "foreign_stance": 65, "social_stance": 67.5}
+        initial_issues = []
+        initial_issues.extend(self.all_issues.generate_issues(1, initial_centers, initial_issues, "economic_stance"))
+        initial_issues.extend(self.all_issues.generate_issues(1, initial_centers, initial_issues, "foreign_stance"))
+        initial_issues.extend(self.all_issues.generate_issues(1, initial_centers, initial_issues, "social_stance"))
+        initial_issues.extend(self.all_issues.generate_issues(1, initial_centers, initial_issues))
 
         self.players = self._create_players()
         for player in self.players:
