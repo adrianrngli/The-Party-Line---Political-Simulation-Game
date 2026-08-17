@@ -77,13 +77,18 @@ class StateElection(Election):
 
     
     def issues_contest(self):
-        for candidate in self.general_candidates:
-            for issue in self.nation.issues:
+        for issue in self.nation.issues:
+            candidate_dists = dict()
+            for candidate in self.general_candidates:
                 candidate_stance = candidate.get_stance(issue)
-                self.points[candidate] += -20.0 * sqrt(self.state.stats[issue.type].distance_to(candidate_stance)) + 200.0
+                candidate_dists[candidate] = self.state.stats[issue.type].distance_to(candidate_stance)
+                self.points[candidate] += -20.0 * sqrt(candidate_dists[candidate]) + 200.0
                 for industry in candidate_stance.industry_effects.keys():
                     self.points[candidate] += candidate_stance.industry_effects[industry]
-
+            if candidate_dists[self.general_candidates[0]] < candidate_dists[self.general_candidates[1]]:
+                self.points[self.general_candidates[0]] += 2 * (candidate_dists[self.general_candidates[1]] - candidate_dists[self.general_candidates[0]])
+            else:
+                self.points[self.general_candidates[1]] += 2 * (candidate_dists[self.general_candidates[0]] - candidate_dists[self.general_candidates[1]])
 
     def fame_contest(self):
         for candidate in self.general_candidates:
