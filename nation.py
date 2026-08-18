@@ -96,6 +96,7 @@ class Nation:
         for party in parties:
             if party != player_party:
                 self.president = President(party, self.states[0], years_in_office=8)
+                self.president.years_of_experience = max(self.president.years_of_experience, 10)
                 self.vice_president = VicePresident(party, self.states[random.randint(0, 49)])
                 for state in self.states:
                     state.rep_composition[party] = round(state.rep_number * 0.6)

@@ -45,9 +45,9 @@ class Game:
         """Ask which party the human leads; the CPU takes the other. Human is index 0."""
         choice = self.interface.select(
             "What party will you align yourself with?",
-            ['D', 'R'],
+            ['Democratic', 'Republican'],
         )
-        if choice == 'D':
+        if choice == 'Democratic':
             return [HumanPlayer(self.democrats, self.interface),
                     CPUPlayer(self.republicans, self.interface)]
         return [HumanPlayer(self.republicans, self.interface),
@@ -55,7 +55,7 @@ class Game:
 
     # --- top-level driver -------------------------------------------------
 
-    def run(self, years=60):
+    def run(self, years=61):
         """Play the game to completion. A GUI can instead call the phase
         methods below directly, interleaving its own rendering."""
         self.report_state_of_the_nation()
