@@ -171,8 +171,11 @@ class Bill:
             self.nation.industry_tracker.apply_stance(self.stance)
         for state in self.nation.states:
             state.stats["presidential_approval"].add((state.law_popularity(self.issue, self.stance) - 50)/5)
-            if self.issue.type == "economic_stance" and self.stance.value < 50:
-                state.stats["wealth"].add((50-self.stance.value)/20)
+            if self.issue.type == "economic_stance":
+                if self.stance.value < 50 and state.stats["wealth"].value < 50:
+                    state.stats["wealth"].add((50-self.stance.value)/20)
+                elif self.stance.value > 50 and state.stats["wealth"].value > 50:
+                    state.stats["wealth"].add((self.stance.value-50)/20)
             elif self.issue.type == "social_stance":
                 state.stats["density"].add((state.stats["social_stance"].value-self.stance.value)/4)
         self.issue.resolved = True
