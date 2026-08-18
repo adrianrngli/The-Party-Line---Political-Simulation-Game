@@ -28,6 +28,10 @@ class Nation:
         self.house_election_results = dict()
         self.laws_passed = {1957: None, 1958: None, 1959: None, 1960: None}
         self.presidential_scandal = True
+        # How many consecutive 4-year terms the current White House party has held
+        # the presidency. Drives the "time for a change" backlash in presidential
+        # elections. The starting president has served eight years (two terms).
+        self.consecutive_white_house_terms = 2
         self.industry_tracker = MultipleIndustryTracker(["agriculture", "manufacturing", "professional_services", "public_sector"], self.year)
         self.econ_record = EconRecord()
 

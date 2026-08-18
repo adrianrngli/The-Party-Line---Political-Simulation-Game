@@ -288,6 +288,11 @@ class StateSenateElection(StateElection):
         return election_header
     
 class StatePresidentialElection(StateElection):
+    # Points the challenger gains per term the incumbent party has held the White
+    # House beyond the first, once it has held it for at least two terms. Tune
+    # this to make voter fatigue with a long-tenured party stronger or weaker.
+    BACKLASH_POINTS_PER_TERM = 12
+
     def __init__(self, state, nation, candidates, running_mates):
         super().__init__(state, nation, candidates)
         self.running_mates = running_mates
@@ -352,6 +357,16 @@ class StatePresidentialElection(StateElection):
         else:
             self.points[self.challenger] += 8
 
+    def out_of_power_contest(self):
+        """"Time for a change": a party shut out of the White House for two or
+        more terms benefits from voter fatigue with the incumbent party. The
+        challenger's party has been out of power for exactly as many terms as the
+        incumbent party has held it, so once that streak reaches two terms the
+        challenger gets a point advantage that grows with each further term."""
+        terms_held = self.nation.consecutive_white_house_terms
+        if terms_held >= 2:
+            self.points[self.challenger] += self.BACKLASH_POINTS_PER_TERM * (terms_held - 1)
+
     def no_third_party_contest(self):
         if len(self.general_candidates) > 2:
             self.points[self.challenger] += 8
@@ -406,6 +421,7 @@ class StatePresidentialElection(StateElection):
         self.party_mandate_contest()
         self.unified_party_contest()
         self.incumbency_contest()
+        self.out_of_power_contest()
         self.no_third_party_contest()
         self.no_recession_contest()
         self.long_term_economy_contest()
@@ -547,6 +563,12 @@ class NationalPresidentialElection(Election):
                 self.winner = candidate
         if self.winner == None:
             raise Exception()
+        # Track how long one party keeps the White House: another consecutive
+        # term if the incumbent party held on, otherwise the streak resets.
+        if self.winner.party == self.nation.president.party:
+            self.nation.consecutive_white_house_terms += 1
+        else:
+            self.nation.consecutive_white_house_terms = 1
         if self.winner != self.nation.president:
             self.winner.retired = True
             self.nation.president = convert_to_president(self.winner, self.nation.states, self.nation.issues)

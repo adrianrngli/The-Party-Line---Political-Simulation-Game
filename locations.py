@@ -145,9 +145,9 @@ class State(StatHolder):
             self.stats["social_stance"].subtract(sqrt((self.stats["density"].value - 50.0)/50))
         for axis in ["economic_stance", "foreign_stance", "social_stance"]:
             if self.stats["presidential_approval"].value >= 50.0:
-                self.stats[axis].push_toward(president.stats[axis], sqrt(self.stats["presidential_approval"].value - 50.0)/50)
+                self.stats[axis].push_toward(president.stats[axis], sqrt(self.stats["presidential_approval"].value - 50.0)/150)
             else:
-                self.stats[axis].push_away_from(president.stats[axis], sqrt(50.0 - self.stats["presidential_approval"].value)/50)
+                self.stats[axis].push_away_from(president.stats[axis], sqrt(50.0 - self.stats["presidential_approval"].value)/150)
 
     def update_economy(self, industry_changes, year):
         if year not in self.econ_record.years():
