@@ -177,7 +177,7 @@ class Bill:
                 elif self.stance.value > 50 and state.stats["wealth"].value > 50:
                     state.stats["wealth"].add((self.stance.value-50)/20)
             elif self.issue.type == "social_stance":
-                state.stats["density"].add((state.stats["social_stance"].value-self.stance.value)/4)
+                state.stats["density"].add((state.stats["social_stance"].value-self.stance.value)/20)
         self.issue.resolved = True
 
     def __str__(self):

@@ -138,8 +138,8 @@ class State(StatHolder):
     
     def increment_year(self, president, year):
         self.stats["presidential_approval"].subtract(2.5)
-        self.stats["wealth"].add((self.econ_record.get_growth(year - 1) - 2))
-        self.stats["density"].add((self.econ_record.get_growth(year - 1) - 2))
+        self.stats["wealth"].add((self.econ_record.get_growth(year - 1) - 2)/10)
+        self.stats["density"].add((self.econ_record.get_growth(year - 1) - 2)/10)
         self.stats["economic_stance"].add((self.stats["wealth"].value - 50.0)/50)
         if self.stats["density"].value > 50.0:
             self.stats["social_stance"].subtract(sqrt((self.stats["density"].value - 50.0)/50))
