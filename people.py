@@ -170,9 +170,9 @@ class Senator(Politician):
         super().increment_year()
         for axis in ["economic_stance", "foreign_stance", "social_stance"]:
             if president.stats["popularity"].value >= 50.0:
-                self.stats[axis].push_toward(president.stats[axis], sqrt(president.stats["popularity"].value - 50.0)/50)
+                self.stats[axis].push_toward(president.stats[axis], sqrt(president.stats["popularity"].value - 50.0)/100)
             else:
-                self.stats[axis].push_away_from(president.stats[axis], sqrt(50.0 - president.stats["popularity"].value)/50)
+                self.stats[axis].push_away_from(president.stats[axis], sqrt(50.0 - president.stats["popularity"].value)/100)
         if self.set_to_retire:
             self.retire()
             return None

@@ -291,7 +291,7 @@ class StatePresidentialElection(StateElection):
     # Points the challenger gains per term the incumbent party has held the White
     # House beyond the first, once it has held it for at least two terms. Tune
     # this to make voter fatigue with a long-tenured party stronger or weaker.
-    BACKLASH_POINTS_PER_TERM = 12
+    BACKLASH_POINTS_PER_TERM = 20
 
     def __init__(self, state, nation, candidates, running_mates):
         super().__init__(state, nation, candidates)
@@ -365,7 +365,7 @@ class StatePresidentialElection(StateElection):
         challenger gets a point advantage that grows with each further term."""
         terms_held = self.nation.consecutive_white_house_terms
         if terms_held >= 2:
-            self.points[self.challenger] += self.BACKLASH_POINTS_PER_TERM * (terms_held - 1)
+            self.points[self.challenger] += self.BACKLASH_POINTS_PER_TERM * int(pow(2, (terms_held - 2)))
 
     def no_third_party_contest(self):
         if len(self.general_candidates) > 2:
